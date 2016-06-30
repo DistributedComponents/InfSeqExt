@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+DEPS=(StructTact)
+CANARIES=("mathcomp.ssreflect.ssreflect" "InfSeqExt requires mathcomp to be installed" "StructTact.StructTactics" "Build StructTact before building InfSeqExt")
+NAMESPACE__="InfSeqExt"
+source coqproject.sh
