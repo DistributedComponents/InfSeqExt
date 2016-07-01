@@ -317,7 +317,7 @@ Proof.
 intros P Q impl.
 apply eventually_monotonic_simple.
 apply always_monotonic.
-apply impl.
+assumption.
 Qed.
 
 Lemma continuously_and_tl :
@@ -339,6 +339,23 @@ apply IHcnyP.
 apply continuously_invar in cnyQ; assumption.
 Qed.
 
+Lemma inf_often_invar :
+  forall (x: T) (s: infseq T) P, inf_often P (Cons x s) -> inf_often P s.
+Proof.
+intros x s P; apply always_invar.
+Qed.
+
+Lemma inf_often_monotonic :
+  forall (P Q : infseq T -> Prop),
+  (forall s, P s -> Q s) ->
+  forall s, inf_often P s -> inf_often Q s.
+Proof.
+intros P Q impl.
+apply always_monotonic.
+apply eventually_monotonic_simple.
+assumption.
+Qed.
+
 Lemma continuously_not_inf_often : 
   forall (P : infseq T -> Prop) (s : infseq T),
   continuously (~_ P) s -> ~ inf_often P s.
@@ -347,18 +364,15 @@ intros P s cnyP.
 induction cnyP.
   destruct s as [e s].
   intros ifP.
-  apply always_Cons in ifP.  
-  destruct ifP as [Ps alnP].
-  induction Ps.
+  apply always_now in ifP.
+  induction ifP.
     destruct s0 as [e0 s0].
-    apply always_Cons in H.
-    destruct H as [nP anP].
-    unfold not_tl in nP.
-    contradict nP.
+    apply always_now in H.
+    unfold not_tl in H.
+    contradict H.
     trivial.
-  apply always_Cons in H.
-  destruct H as [nP anP].
-  contradict IHPs.
+  apply always_invar in H.
+  contradict IHifP.
   trivial.
 intro ioP.
 apply always_invar in ioP.
@@ -395,6 +409,23 @@ induction evP.
   contradict nP; assumption.
 apply always_invar in alP.
 contradict IHevP; assumption.
+Qed.
+
+Lemma eventually_not_always :
+  forall (P : infseq T -> Prop) (s : infseq T),
+    eventually (~_ P) s -> ~ always P s.
+Proof.
+intros P s eP alP.
+induction eP.
+ destruct s as [x s].
+ unfold not_tl in H.
+ contradict H.
+ apply always_Cons in alP.
+ destruct alP as [PC alP].
+ assumption.
+apply always_invar in alP.
+contradict IHeP.
+assumption.
 Qed.
 
 Lemma until_always_not_always :
@@ -490,8 +521,12 @@ Implicit Arguments continuously_invar [T x s P].
 Implicit Arguments continuously_monotonic [T P Q s].
 Implicit Arguments continuously_and_tl [T P Q s].
 
+Implicit Arguments inf_often_invar [T x s P].
+Implicit Arguments inf_often_monotonic [T P Q s].
+
 Implicit Arguments continuously_not_inf_often [T P s].
 Implicit Arguments not_eventually_always_not [T P s].
+Implicit Arguments eventually_not_always [T P s].
 Implicit Arguments until_always_not_always [T J P s].
 
 Implicit Arguments and_tl_comm [T P Q s].
@@ -512,4 +547,6 @@ Ltac monotony :=
      | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
      | [ |- continuously ?P ?s -> continuously ?Q ?s ] =>
        apply continuously_monotonic
+     | [ |- inf_often ?P ?s -> inf_often ?Q ?s ] =>
+       apply inf_often_monotonic
   end.
