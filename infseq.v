@@ -254,6 +254,20 @@ Proof.
 intros (x, s). simpl. apply always_invar. 
 Qed.
 
+Lemma always_and_tl :
+  forall (P Q : infseq T -> Prop),
+    forall s, always P s -> always Q s -> always (P /\_ Q) s.
+Proof.
+intros P Q.
+cofix c.
+intros s alP alQ.
+destruct alP.
+destruct alQ.
+apply Always.
+  split; assumption.
+apply c; assumption.
+Qed.
+
 Lemma until_Cons :
   forall (x: T) (s: infseq T) J P,
   until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ until J P s).
@@ -297,8 +311,6 @@ intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
     intros (_, uns). constructor 2. apply induc_hyp. exact uns. 
 Qed.
 
-(* *)
-
 Lemma always_always1 :
    forall P (s: infseq T), (always (now P) s) <-> (always1 P s).
 Proof.
@@ -313,8 +325,6 @@ intros P s. split; genclear s.
     apply alwn; assumption. 
 Qed.
 
-(* *)
-
 Lemma always_inf_often :
    forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
 Proof.
@@ -322,8 +332,6 @@ intros P. cofix f. intros s a. destruct a. constructor.
    constructor 1. assumption.
    apply f. assumption.
 Qed.
-
-(* *)
 
 Lemma now_monotonic :
   forall (P Q: T -> Prop), 
@@ -392,7 +400,6 @@ intros P Q PQ s.
 apply (eventually_monotonic P Q (fun s:infseq T => True)); auto.
 Qed.
 
-
 Lemma until_eventually :
   forall (P Q J: infseq T -> Prop), 
   (forall s, J s -> P s -> Q s) -> 
@@ -413,12 +420,180 @@ induction ev as [s Ps | x s ev induc_hyp].
        apply induc_hyp; assumption. 
 Qed.
 
+Lemma continuously_invar :
+  forall (x: T) (s: infseq T) P, continuously P (Cons x s) -> continuously P s.
+Proof.
+intros x s P cny.
+apply eventually_Cons in cny.
+case cny; trivial.
+intro alP.
+apply E0.
+apply always_invar in alP; assumption.
+Qed.
+
+Lemma continuously_monotonic :
+  forall (P Q : infseq T -> Prop),
+  (forall s, P s -> Q s) ->
+  forall s, continuously P s -> continuously Q s.
+Proof.
+intros P Q impl.
+apply eventually_monotonic_simple.
+apply always_monotonic.
+apply impl.
+Qed.
+
+Lemma continuously_and_tl :
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  continuously P s -> continuously Q s -> continuously (P /\_ Q) s.
+Proof.
+intros P Q s cnyP.
+induction cnyP as [s alP|].
+  intro cnyQ.
+  induction cnyQ.
+  apply E0.
+  apply always_and_tl; trivial.
+  apply E_next.
+  apply IHcnyQ.
+  apply always_invar in alP; assumption.
+intro cnyQ.
+apply E_next.
+apply IHcnyP.
+apply continuously_invar in cnyQ; assumption.
+Qed.
+
+Lemma continuously_not_inf_often : 
+  forall (P : infseq T -> Prop) (s : infseq T),
+  continuously (~_ P) s -> ~ inf_often P s.
+Proof.
+intros P s cnyP.
+induction cnyP.
+  destruct s as [e s].
+  intros ifP.
+  apply always_Cons in ifP.  
+  destruct ifP as [Ps alnP].
+  induction Ps.
+    destruct s0 as [e0 s0].
+    apply always_Cons in H.
+    destruct H as [nP anP].
+    unfold not_tl in nP.
+    contradict nP.
+    trivial.
+  apply always_Cons in H.
+  destruct H as [nP anP].
+  contradict IHPs.
+  trivial.
+intro ioP.
+apply always_invar in ioP.
+contradict IHcnyP.
+trivial.
+Qed.
+
+Lemma not_eventually_always_not :
+  forall (P : infseq T -> Prop) (s : infseq T),
+  ~ eventually P s <-> always (~_ P) s.
+Proof.
+intros P.
+split; genclear s.
+  cofix c.
+  intros s evP.
+  destruct s as [e s].
+  apply Always.
+    unfold not_tl.
+    intro Pn.
+    case evP.
+    apply E0.
+    assumption.
+  apply c.
+  intro evPn.
+  contradict evP.
+  apply E_next.
+  assumption.
+intros s alP evP.
+induction evP.
+  destruct s as [e s].
+  apply always_Cons in alP.
+  destruct alP as [nP alP].
+  unfold not_tl in nP.
+  contradict nP; assumption.
+apply always_invar in alP.
+contradict IHevP; assumption.
+Qed.
+
+Lemma until_always_not_always :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+  until J P s -> always (~_ P) s -> always J s.
+Proof.
+intros J P.
+cofix c.
+intros s unJP alP.
+destruct s as [e s].
+apply until_Cons in unJP.
+case unJP.
+  intro PC.
+  apply always_Cons in alP.
+  destruct alP as [nP alP].
+  unfold not_tl in nP.
+  contradict nP.
+  assumption.
+intros Jun.
+destruct Jun as [JC unJPs].
+apply Always; trivial.
+apply c; trivial.
+apply always_invar in alP.
+assumption.
+Qed.
+
+Lemma and_tl_comm : 
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  (P /\_ Q) s <-> (Q /\_ P) s.
+Proof.
+intros; split; unfold and_tl; apply and_comm.
+Qed.
+
+Lemma and_tl_assoc : 
+  forall (P Q R : infseq T -> Prop) (s : infseq T),
+  ((P /\_ Q) /\_ R) s <-> (P /\_ Q /\_ R) s.
+Proof.
+intros; split; unfold and_tl; apply and_assoc.
+Qed.
+
+Lemma or_tl_comm :
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  (P \/_ Q) s <-> (Q \/_ P) s.
+Proof.
+intros; split; unfold or_tl; apply or_comm.
+Qed.
+
+Lemma or_tl_assoc : 
+  forall (P Q R : infseq T -> Prop) (s : infseq T),
+  ((P \/_ Q) \/_ R) s <-> (P \/_ Q \/_ R) s.
+Proof.
+intros; split; unfold or_tl; apply or_assoc.
+Qed.
+
+Lemma not_tl_or_tl : 
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  (~_ (P \/_ Q)) s <-> ((~_ P) /\_ (~_ Q)) s.
+Proof.
+intros P Q s; unfold not_tl, and_tl, or_tl; split; [ intros PQs | intros [Ps Qs] PQs].
+  split; intro Ps; contradict PQs; [left|right]; assumption.
+case PQs; assumption.
+Qed.
+
+Lemma not_tl_or_tl_and_tl : 
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+    ((~_ P) \/_ (~_ Q)) s -> (~_ (P /\_ Q)) s.
+Proof.
+intros P Q s; unfold not_tl, and_tl, or_tl; intros PQs [Ps Qs]; case PQs; intros nPQs; contradict nPQs; assumption.
+Qed.
+
 End sec_modal_op_lemmas.
 
 Implicit Arguments always_Cons [T x s P]. 
 Implicit Arguments always_now [T x s P]. 
 Implicit Arguments always_invar [T x s P]. 
-Implicit Arguments always_tl [T s P]. 
+Implicit Arguments always_tl [T s P].
+Implicit Arguments always_and_tl [T s P Q].
 Implicit Arguments eventually_next [T P s]. 
 Implicit Arguments until_Cons [T x s J P]. 
 Implicit Arguments eventually_Cons [T x s P]. 
@@ -433,6 +608,20 @@ Implicit Arguments eventually_monotonic_simple [T P Q s].
 Implicit Arguments always_monotonic [T P Q s]. 
 Implicit Arguments until_monotonic [T P Q J K s]. 
 
+Implicit Arguments continuously_invar [T x s P].
+Implicit Arguments continuously_monotonic [T P Q s].
+Implicit Arguments continuously_and_tl [T P Q s].
+
+Implicit Arguments continuously_not_inf_often [T P s].
+Implicit Arguments not_eventually_always_not [T P s].
+Implicit Arguments until_always_not_always [T J P s].
+
+Implicit Arguments and_tl_comm [T P Q s].
+Implicit Arguments and_tl_assoc [T P Q R s].
+Implicit Arguments or_tl_comm [T P Q s].
+Implicit Arguments or_tl_assoc [T P Q R s].
+Implicit Arguments not_tl_or_tl [T P Q s].
+Implicit Arguments not_tl_or_tl_and_tl [T P Q s].
 
 Ltac monotony := 
   match goal with 
@@ -443,6 +632,8 @@ Ltac monotony :=
      | [ |- ?J ?s -> eventually ?P ?s -> eventually ?Q ?s ] =>
        apply eventually_monotonic
      | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
+     | [ |- continuously ?P ?s -> continuously ?Q ?s ] =>
+       apply continuously_monotonic
   end.
 
 
@@ -457,7 +648,7 @@ Variable T: Type.
 Definition extensional (P: infseq T -> Prop) :=
   forall s1 s2, exteq_infseq s1 s2 -> P s1 -> P s2.
 
-Lemma extensional_and:
+Lemma extensional_and_tl :
   forall (P Q: infseq T -> Prop), 
   extensional P -> extensional Q -> extensional (P /\_ Q).
 Proof. 
@@ -466,7 +657,7 @@ intros P Q eP eQ s1 s2 e. destruct e; simpl. unfold and_tl. intuition.
   apply eQ with (Cons x s1); [constructor; assumption | assumption]. 
 Qed.
 
-Lemma extensional_or:
+Lemma extensional_or_tl :
   forall (P Q: infseq T -> Prop),
   extensional P -> extensional Q -> extensional (P \/_ Q).
 Proof. 
@@ -475,7 +666,7 @@ intros P Q eP eQ s1 s2 e. destruct e; simpl. unfold or_tl. intuition.
   right; apply eQ with (Cons x s1); [constructor; assumption | assumption]. 
 Qed.
 
-Lemma extensional_impl:
+Lemma extensional_impl_tl :
   forall (P Q: infseq T -> Prop),
   extensional P -> extensional Q -> extensional (P ->_ Q).
 Proof. 
@@ -485,6 +676,19 @@ intros PQ1 P2.
   apply PQ1. apply eP with (Cons x s2). 
     constructor. apply exteq_sym. assumption. 
     assumption. 
+Qed.
+
+Lemma extensional_not_tl :
+  forall (P: infseq T -> Prop),
+  extensional P -> extensional (~_ P).
+Proof.
+intros P eP s1 s2 e; destruct e; simpl. unfold not_tl.
+intros P1 nP2.
+contradict P1.
+apply eP with (Cons x s2); trivial.
+apply exteq_sym.
+apply exteq_infseq_intro.
+assumption.
 Qed.
 
 (* *)
