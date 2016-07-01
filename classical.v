@@ -5,14 +5,6 @@ Section sec_classical.
 
 Variable T : Type.
 
-Lemma not_tl_and_tl_or_tl : 
-  forall (P Q : infseq T -> Prop) (s : infseq T),
-  (~_ (P /\_ Q)) s -> ((~_ P) \/_ (~_ Q)) s.
-Proof.
-intros P Q s; unfold not_tl, and_tl, or_tl.
-apply not_and_or.
-Qed.
-
 Lemma not_eventually_not_always : 
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ eventually (~_ P) s -> always P s.
@@ -62,4 +54,17 @@ apply E_next.
 assumption.
 Qed.
 
+Lemma not_tl_and_tl_or_tl :
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  (~_ (P /\_ Q)) s -> ((~_ P) \/_ (~_ Q)) s.
+Proof.
+intros P Q s; unfold not_tl, and_tl, or_tl.
+apply not_and_or.
+Qed.
+
 End sec_classical.
+
+Implicit Arguments not_eventually_not_always [T P s].
+Implicit Arguments not_always_eventually_not [T P s].
+Implicit Arguments not_inf_often_continuously_not [T P s].
+Implicit Arguments not_tl_and_tl_or_tl [T P Q s].

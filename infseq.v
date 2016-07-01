@@ -106,6 +106,8 @@ Section sec_modal_op_lemmas.
 
 Variable T : Type.
 
+(* always facts *)
+
 Lemma always_Cons :
   forall (x: T) (s: infseq T) P,
   always P (Cons x s) -> P (Cons x s) /\ always P s.
@@ -145,6 +147,38 @@ apply Always.
   split; assumption.
 apply c; assumption.
 Qed.
+
+Lemma always_always1 :
+   forall P (s: infseq T), always (now P) s <-> always1 P s.
+Proof.
+intros P s. split; genclear s.
+  cofix alwn.
+  intros s a; case a; clear a s. intros (x, s); simpl. constructor.
+    assumption.
+    apply alwn; assumption.
+
+  cofix alwn. destruct 1. constructor; simpl.
+    assumption.
+    apply alwn; assumption.
+Qed.
+
+Lemma always_inf_often :
+   forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
+Proof.
+intros P. cofix f. intros s a. destruct a. constructor.
+   constructor 1. assumption.
+   apply f. assumption.
+Qed.
+
+Lemma always_continuously :
+   forall (P: infseq T -> Prop) (s : infseq T), always P s -> continuously P s.
+Proof.
+intros P s alP.
+apply E0.
+assumption.
+Qed.
+
+(* until and eventually facts *)
 
 Lemma until_Cons :
   forall (x: T) (s: infseq T) J P,
@@ -189,45 +223,101 @@ intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
     intros (_, uns). constructor 2. apply induc_hyp. exact uns. 
 Qed.
 
-Lemma always_always1 :
-   forall P (s: infseq T), (always (now P) s) <-> (always1 P s).
+Lemma until_eventually :
+  forall (P Q J: infseq T -> Prop),
+  (forall s, J s -> P s -> Q s) ->
+  forall s, J s -> until J Q s -> eventually P s -> eventually Q s.
 Proof.
-intros P s. split; genclear s. 
-  cofix alwn.
-  intros s a; case a; clear a s. intros (x, s); simpl. constructor.
-    assumption. 
-    apply alwn; assumption. 
-  
-  cofix alwn. destruct 1. constructor; simpl.
-    assumption. 
-    apply alwn; assumption. 
+intros P Q J impl s Js J_until_Q ev.
+genclear J_until_Q; genclear Js.
+induction ev as [s Ps | x s ev induc_hyp].
+  intros Js J_until_Q. constructor 1. apply impl; assumption.
+  intros _ J_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
+  case J_until_Q; clear J_until_Q x.
+    constructor 1; assumption.
+    intros (x, s1) _ J_until_Q e; simpl in *.
+    constructor 2. generalize e J_until_Q; clear e x. (* trick: keep J_until_Q!! *)
+    case J_until_Q; clear J_until_Q s1.
+       clearall. constructor 1; assumption.
+       intros s2 Js2 _ e J_until_Q2. rewrite e in induc_hyp; clear e.
+       apply induc_hyp; assumption.
 Qed.
 
-Lemma always_inf_often :
-   forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
+Lemma eventually_trans :
+  forall (P Q inv: infseq T -> Prop),
+  (forall x s, inv (Cons x s) -> inv s) ->
+  (forall s, inv s -> P s -> eventually Q s) ->
+  forall s, inv s -> eventually P s -> eventually Q s.
 Proof.
-intros P. cofix f. intros s a. destruct a. constructor. 
-   constructor 1. assumption.
-   apply f. assumption.
+intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev].
+  apply PeQ; assumption.
+  constructor 2. apply IHev. apply is_inv with x; assumption.
 Qed.
+
+(* inf_often and continuously facts *)
+
+Lemma inf_often_invar :
+  forall (x: T) (s: infseq T) P, inf_often P (Cons x s) -> inf_often P s.
+Proof.
+intros x s P; apply always_invar.
+Qed.
+
+Lemma continuously_invar :
+  forall (x: T) (s: infseq T) P, continuously P (Cons x s) -> continuously P s.
+Proof.
+intros x s P cny.
+apply eventually_Cons in cny.
+case cny; trivial.
+intro alP.
+apply E0.
+apply always_invar in alP; assumption.
+Qed.
+
+Lemma continuously_and_tl :
+  forall (P Q : infseq T -> Prop) (s : infseq T),
+  continuously P s -> continuously Q s -> continuously (P /\_ Q) s.
+Proof.
+intros P Q s cnyP.
+induction cnyP as [s alP|].
+  intro cnyQ.
+  induction cnyQ.
+  apply E0.
+  apply always_and_tl; trivial.
+  apply E_next.
+  apply IHcnyQ.
+  apply always_invar in alP; assumption.
+intro cnyQ.
+apply E_next.
+apply IHcnyP.
+apply continuously_invar in cnyQ; assumption.
+Qed.
+
+(* monotony *)
 
 Lemma now_monotonic :
   forall (P Q: T -> Prop), 
-  (forall x, P x -> Q x)    ->   forall s, now P s -> now Q s.
+  (forall x, P x -> Q x) -> forall s, now P s -> now Q s.
 Proof.
 intros P Q PQ (x, s) nP; simpl. apply PQ. assumption.
 Qed.
 
+Lemma next_monotonic :
+  forall (P Q: infseq T -> Prop),
+  (forall s, P s -> Q s) -> forall s, next P s -> next Q s.
+Proof.
+intros P Q PQ [x s]; apply PQ.
+Qed.
+
 Lemma consecutive_monotonic :
   forall (P Q: T -> T -> Prop), 
-  (forall x y, P x y -> Q x y)    ->   forall s, consecutive P s -> consecutive Q s.
+  (forall x y, P x y -> Q x y) -> forall s, consecutive P s -> consecutive Q s.
 Proof.
 intros P Q PQ (x, (y, s)) nP; simpl. apply PQ. assumption.
 Qed.
 
 Lemma always_monotonic :
   forall (P Q: infseq T -> Prop),
-  (forall s, P s -> Q s)   ->   forall s, always P s -> always Q s.
+  (forall s, P s -> Q s) -> forall s, always P s -> always Q s.
 Proof.
 intros P Q PQ.  cofix cf. intros(x, s) a. 
 generalize (always_Cons x s P a); simpl; intros (a1, a2). constructor; simpl.
@@ -244,17 +334,6 @@ intros P Q J K PQ JK.  cofix cf. intros(x, s) un.
 generalize (until_Cons x s J P un); simpl. intros [Pxs | (Jxs, uns)]. 
   constructor 1; simpl; auto. 
   constructor 2; simpl; auto. 
-Qed.
-
-Lemma eventually_trans :
-  forall (P Q inv: infseq T -> Prop), 
-  (forall x s, inv (Cons x s) -> inv s) ->
-  (forall s, inv s -> P s -> eventually Q s) -> 
-  forall s, inv s -> eventually P s -> eventually Q s.
-Proof.
-intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev]. 
-  apply PeQ; assumption.  
-  constructor 2. apply IHev. apply is_inv with x; assumption.
 Qed.
 
 Lemma eventually_monotonic :
@@ -278,35 +357,15 @@ intros P Q PQ s.
 apply (eventually_monotonic P Q (fun s:infseq T => True)); auto.
 Qed.
 
-Lemma until_eventually :
-  forall (P Q J: infseq T -> Prop), 
-  (forall s, J s -> P s -> Q s) -> 
-  forall s, J s -> until J Q s -> eventually P s -> eventually Q s.
+Lemma inf_often_monotonic :
+  forall (P Q : infseq T -> Prop),
+  (forall s, P s -> Q s) ->
+  forall s, inf_often P s -> inf_often Q s.
 Proof.
-intros P Q J impl s Js J_until_Q ev.
-genclear J_until_Q; genclear Js.
-induction ev as [s Ps | x s ev induc_hyp]. 
-  intros Js J_until_Q. constructor 1. apply impl; assumption. 
-  intros _ J_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
-  case J_until_Q; clear J_until_Q x. 
-    constructor 1; assumption.
-    intros (x, s1) _ J_until_Q e; simpl in *.
-    constructor 2. generalize e J_until_Q; clear e x. (* trick: keep J_until_Q!! *)
-    case J_until_Q; clear J_until_Q s1.
-       clearall. constructor 1; assumption. 
-       intros s2 Js2 _ e J_until_Q2. rewrite e in induc_hyp; clear e. 
-       apply induc_hyp; assumption. 
-Qed.
-
-Lemma continuously_invar :
-  forall (x: T) (s: infseq T) P, continuously P (Cons x s) -> continuously P s.
-Proof.
-intros x s P cny.
-apply eventually_Cons in cny.
-case cny; trivial.
-intro alP.
-apply E0.
-apply always_invar in alP; assumption.
+intros P Q impl.
+apply always_monotonic.
+apply eventually_monotonic_simple.
+assumption.
 Qed.
 
 Lemma continuously_monotonic :
@@ -320,41 +379,7 @@ apply always_monotonic.
 assumption.
 Qed.
 
-Lemma continuously_and_tl :
-  forall (P Q : infseq T -> Prop) (s : infseq T),
-  continuously P s -> continuously Q s -> continuously (P /\_ Q) s.
-Proof.
-intros P Q s cnyP.
-induction cnyP as [s alP|].
-  intro cnyQ.
-  induction cnyQ.
-  apply E0.
-  apply always_and_tl; trivial.
-  apply E_next.
-  apply IHcnyQ.
-  apply always_invar in alP; assumption.
-intro cnyQ.
-apply E_next.
-apply IHcnyP.
-apply continuously_invar in cnyQ; assumption.
-Qed.
-
-Lemma inf_often_invar :
-  forall (x: T) (s: infseq T) P, inf_often P (Cons x s) -> inf_often P s.
-Proof.
-intros x s P; apply always_invar.
-Qed.
-
-Lemma inf_often_monotonic :
-  forall (P Q : infseq T -> Prop),
-  (forall s, P s -> Q s) ->
-  forall s, inf_often P s -> inf_often Q s.
-Proof.
-intros P Q impl.
-apply always_monotonic.
-apply eventually_monotonic_simple.
-assumption.
-Qed.
+(* not_tl inside operators *)
 
 Lemma continuously_not_inf_often : 
   forall (P : infseq T -> Prop) (s : infseq T),
@@ -452,6 +477,24 @@ apply always_invar in alP.
 assumption.
 Qed.
 
+Lemma always_not_eventually_not :
+  forall (P : infseq T -> Prop) (s : infseq T),
+    always P s -> ~ eventually (~_ P) s.
+Proof.
+intros P s alP evP.
+induction evP.
+  unfold not_tl in H.
+  contradict H.
+  destruct s as [x s].
+  apply always_now in alP.
+  assumption.
+contradict IHevP.
+apply always_invar in alP.
+assumption.
+Qed.
+
+(* connector facts *)
+
 Lemma and_tl_comm : 
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (P /\_ Q) s <-> (Q /\_ P) s.
@@ -503,31 +546,37 @@ Implicit Arguments always_now [T x s P].
 Implicit Arguments always_invar [T x s P]. 
 Implicit Arguments always_tl [T s P].
 Implicit Arguments always_and_tl [T s P Q].
-Implicit Arguments eventually_next [T P s]. 
-Implicit Arguments until_Cons [T x s J P]. 
+Implicit Arguments always_always1 [T s P].
+Implicit Arguments always_inf_often [T s P].
+Implicit Arguments always_continuously [T s P].
+
+Implicit Arguments until_Cons [T x s J P].
 Implicit Arguments eventually_Cons [T x s P]. 
+Implicit Arguments eventually_next [T P s].
 Implicit Arguments eventually_always_cumul [T s P Q].
 Implicit Arguments eventually_until_cumul [T s P J].
 Implicit Arguments until_eventually [T P Q s J].
-
-Implicit Arguments now_monotonic [T P Q s]. 
-Implicit Arguments consecutive_monotonic [T P Q s]. 
-Implicit Arguments eventually_monotonic [T P Q s]. 
-Implicit Arguments eventually_monotonic_simple [T P Q s]. 
-Implicit Arguments always_monotonic [T P Q s]. 
-Implicit Arguments until_monotonic [T P Q J K s]. 
-
-Implicit Arguments continuously_invar [T x s P].
-Implicit Arguments continuously_monotonic [T P Q s].
-Implicit Arguments continuously_and_tl [T P Q s].
+Implicit Arguments eventually_trans [T P Q inv s].
 
 Implicit Arguments inf_often_invar [T x s P].
+Implicit Arguments continuously_invar [T x s P].
+Implicit Arguments continuously_and_tl [T P Q s].
+
+Implicit Arguments now_monotonic [T P Q s].
+Implicit Arguments next_monotonic [T P Q s].
+Implicit Arguments consecutive_monotonic [T P Q s].
+Implicit Arguments always_monotonic [T P Q s].
+Implicit Arguments until_monotonic [T P Q J K s].
+Implicit Arguments eventually_monotonic [T P Q s].
+Implicit Arguments eventually_monotonic_simple [T P Q s].
 Implicit Arguments inf_often_monotonic [T P Q s].
+Implicit Arguments continuously_monotonic [T P Q s].
 
 Implicit Arguments continuously_not_inf_often [T P s].
 Implicit Arguments not_eventually_always_not [T P s].
 Implicit Arguments eventually_not_always [T P s].
 Implicit Arguments until_always_not_always [T J P s].
+Implicit Arguments always_not_eventually_not [T P s].
 
 Implicit Arguments and_tl_comm [T P Q s].
 Implicit Arguments and_tl_assoc [T P Q R s].
@@ -539,6 +588,7 @@ Implicit Arguments not_tl_or_tl_and_tl [T P Q s].
 Ltac monotony := 
   match goal with 
      | [ |- now ?P ?s -> now ?Q ?s ] => apply now_monotonic
+     | [ |- next ?P ?s -> next ?Q ?s ] => apply next_monotonic
      | [ |- consecutive ?P ?s -> consecutive ?Q ?s ] =>
        apply consecutive_monotonic
      | [ |- always ?P ?s -> always ?Q ?s ] => apply always_monotonic
