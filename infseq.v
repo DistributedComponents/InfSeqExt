@@ -102,10 +102,6 @@ Notation "A /\_ B" := (and_tl A B) (right associativity, at level 80).
 Notation "A \/_ B" := (or_tl A B) (right associativity, at level 85).
 Notation "~_ A" := (not_tl A) (right associativity, at level 90).
 
-
-(* *)
-
-
 Section sec_modal_op_lemmas.
 
 Variable T : Type.

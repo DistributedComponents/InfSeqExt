@@ -102,21 +102,27 @@ apply exteq_intro.
 assumption.
 Qed.
 
-(* *)
-
-Lemma extensional_now:
+Lemma extensional_now :
   forall (P: T -> Prop), extensional (now P).
 Proof. 
 intros P s1 s2 e. destruct e; simpl. trivial.
 Qed.
 
-Lemma extensional_consecutive:
+Lemma extensional_next :
+  forall (P: infseq T -> Prop), 
+  extensional P -> extensional (next P).
+Proof.
+intros P eP s1 s2 exP; destruct exP; simpl.
+apply eP; assumption.
+Qed.
+
+Lemma extensional_consecutive :
   forall (P: T -> T -> Prop), extensional (consecutive P).
 Proof. 
 intros P s1 s2 e. do 2 destruct e; simpl. trivial.
 Qed.
 
-Lemma extensional_eventually:
+Lemma extensional_eventually :
   forall (P: infseq T -> Prop), 
   extensional P -> extensional (eventually P). 
 Proof.
@@ -127,9 +133,9 @@ induction ev1 as [s1 ev1 | x1 s1 ev1 induc_hyp].
     case (exteq_inversion e). trivial.  
 Qed.
 
-Lemma extensional_always:
+Lemma extensional_always :
   forall (P: infseq T -> Prop),
-  extensional P -> extensional (always P). 
+  extensional P -> extensional (always P).
 Proof.
 intros P eP. cofix cf. 
 intros (x1, s1) (x2, s2) e al1. case (always_Cons al1); intros Px1s1 als1. constructor. 
@@ -137,8 +143,7 @@ intros (x1, s1) (x2, s2) e al1. case (always_Cons al1); intros Px1s1 als1. const
   simpl. apply cf with s1; try assumption. case (exteq_inversion e); trivial.
 Qed.
 
-
-Lemma extensional_until:
+Lemma extensional_until :
   forall (P Q: infseq T -> Prop),
   extensional P -> extensional Q -> extensional (until P Q). 
 Proof.
@@ -148,6 +153,20 @@ intros (x1, s1) (x2, s2) e un1. case (until_Cons un1).
   intros (Px1s1, uns1). constructor 2.
     eapply eP; eassumption. 
     simpl. apply cf with s1; try assumption. case (exteq_inversion e); trivial.
+Qed.
+
+Lemma extensional_inf_often :
+forall (P: infseq T -> Prop),
+  extensional P -> extensional (inf_often P).
+Proof.
+intros P eP; apply extensional_always; apply extensional_eventually; assumption.
+Qed.
+
+Lemma extensional_continuously :
+forall (P: infseq T -> Prop),
+  extensional P -> extensional (continuously P).
+Proof.
+intros P eP; apply extensional_eventually; apply extensional_always; assumption.
 Qed.
 
 End sec_exteq_congruence.

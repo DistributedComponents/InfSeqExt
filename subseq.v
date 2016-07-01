@@ -1,4 +1,5 @@
 Require Import InfSeqExt.infseq.
+Require Import InfSeqExt.exteq.
 
 (* --------------------------------------------------------------------------- *)
 (* Infinite subsequences *)
@@ -99,15 +100,12 @@ Qed.
 
 (* Extensional version *)
 
-CoInductive bisim : infseq T -> infseq T -> Prop :=
-  | bisim_next : forall x s s', bisim s s' -> bisim (Cons x s) (Cons x s').
-
-Inductive suff_bisim (s : infseq T) : infseq T -> Prop :=
-  | sb_eq : forall s', bisim s s' -> suff_bisim s s'
-  | sb_next : forall x s', suff_bisim s s' -> suff_bisim s (Cons x s').
+Inductive suff_exteq (s : infseq T) : infseq T -> Prop :=
+  | sb_eq : forall s', exteq s s' -> suff_exteq s s'
+  | sb_next : forall x s', suff_exteq s s' -> suff_exteq s (Cons x s').
 
 Inductive suffb (x : T) (s : infseq T) : infseq T -> Prop :=
-  | sp_eqb : forall s', bisim (Cons x s) s' -> suffb x s s'
+  | sp_eqb : forall s', exteq (Cons x s) s' -> suffb x s s'
   | sp_nextb : forall y s', suffb x s s' -> suffb x s (Cons y s').
 
 CoInductive subseqb : infseq T -> infseq T -> Prop :=
