@@ -54,6 +54,27 @@ apply E_next.
 assumption.
 Qed.
 
+Lemma not_continously_inf_often_not :
+  forall (P : infseq T -> Prop) (s : infseq T),
+  ~ continuously P s -> inf_often (~_ P) s.
+Proof.
+intros P.
+cofix c.
+intros [x s] cnyP.
+apply Always.
+  unfold continuously in cnyP.
+  apply not_eventually_always_not in cnyP.
+  apply always_now in cnyP.
+  unfold not_tl in cnyP.
+  apply not_always_eventually_not in cnyP.
+  assumption.
+apply c.
+intros cnynP.
+contradict cnyP.
+apply E_next.
+assumption.
+Qed.
+
 Lemma not_tl_and_tl_or_tl :
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (~_ (P /\_ Q)) s -> ((~_ P) \/_ (~_ Q)) s.
@@ -67,4 +88,5 @@ End sec_classical.
 Implicit Arguments not_eventually_not_always [T P s].
 Implicit Arguments not_always_eventually_not [T P s].
 Implicit Arguments not_inf_often_continuously_not [T P s].
+Implicit Arguments not_continously_inf_often_not [T P s].
 Implicit Arguments not_tl_and_tl_or_tl [T P Q s].

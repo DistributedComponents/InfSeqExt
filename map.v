@@ -12,10 +12,12 @@ CoFixpoint map (f: A->B) (s: infseq A): infseq B :=
   end.
 
 Lemma map_Cons: forall (f:A->B) x s, map f (Cons x s) = Cons (f x) (map f s).
+Proof.
 intros. pattern (map f (Cons x s)). rewrite <- recons. simpl. reflexivity.
 Qed.
 
-End sec_map. 
+End sec_map.
+
 Implicit Arguments map [A B].
 Implicit Arguments map_Cons [A B].
 
@@ -41,7 +43,7 @@ Implicit Arguments zip [A B].
 Implicit Arguments zip_Cons [A B].
 
 (* --------------------------------------------------------------------------- *)
-(* map and_tl  temporal logic *)
+(* map and_tl temporal logic *)
 
 Section sec_map_modalop.
 
@@ -293,6 +295,25 @@ genclear efst. apply extensional_eventually.
   apply exteq_fst_zip.
 Qed.
 
+Lemma inf_often_map :
+   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
+   (forall s, P s -> Q (map f s)) ->
+   forall (s: infseq A), inf_often P s -> inf_often Q (map f s).
+Proof.
+intros f P Q PQ.
+apply always_map; apply eventually_map; assumption.
+Qed.
+
+Lemma inf_often_map_conv :
+   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
+   extensional P -> extensional Q -> 
+   (forall s, Q (map f s) -> P s) ->
+   forall (s: infseq A), inf_often Q (map f s) -> inf_often P s.
+Proof.
+intros f P Q eP eQ QP.
+apply always_map_conv; apply eventually_map_conv; trivial.
+Qed.
+
 Lemma continuously_map :
    forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
    (forall s, P s -> Q (map f s)) ->
@@ -313,25 +334,6 @@ apply eventually_map_conv.
 - apply extensional_always; assumption.
 - apply extensional_always; assumption.
 - apply always_map_conv; assumption.
-Qed.
-
-Lemma inf_often_map :
-   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
-   (forall s, P s -> Q (map f s)) ->
-   forall (s: infseq A), inf_often P s -> inf_often Q (map f s).
-Proof.
-intros f P Q PQ.
-apply always_map; apply eventually_map; assumption.
-Qed.
-
-Lemma inf_often_map_conv :
-   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
-   extensional P -> extensional Q -> 
-   (forall s, Q (map f s) -> P s) ->
-   forall (s: infseq A), inf_often Q (map f s) -> inf_often P s.
-Proof.
-intros f P Q eP eQ QP.
-apply always_map_conv; apply eventually_map_conv; trivial.
 Qed.
 
 (* Some corollaries *)

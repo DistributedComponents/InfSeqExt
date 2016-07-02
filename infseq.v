@@ -381,30 +381,6 @@ Qed.
 
 (* not_tl inside operators *)
 
-Lemma continuously_not_inf_often : 
-  forall (P : infseq T -> Prop) (s : infseq T),
-  continuously (~_ P) s -> ~ inf_often P s.
-Proof.
-intros P s cnyP.
-induction cnyP.
-  destruct s as [e s].
-  intros ifP.
-  apply always_now in ifP.
-  induction ifP.
-    destruct s0 as [e0 s0].
-    apply always_now in H.
-    unfold not_tl in H.
-    contradict H.
-    trivial.
-  apply always_invar in H.
-  contradict IHifP.
-  trivial.
-intro ioP.
-apply always_invar in ioP.
-contradict IHcnyP.
-trivial.
-Qed.
-
 Lemma not_eventually_always_not :
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ eventually P s <-> always (~_ P) s.
@@ -493,6 +469,52 @@ apply always_invar in alP.
 assumption.
 Qed.
 
+Lemma continuously_not_inf_often :
+  forall (P : infseq T -> Prop) (s : infseq T),
+  continuously (~_ P) s -> ~ inf_often P s.
+Proof.
+intros P s cnyP.
+induction cnyP.
+  destruct s as [e s].
+  intros ifP.
+  apply always_now in ifP.
+  induction ifP.
+    destruct s0 as [e0 s0].
+    apply always_now in H.
+    unfold not_tl in H.
+    contradict H.
+    trivial.
+  apply always_invar in H.
+  contradict IHifP.
+  trivial.
+intro ioP.
+apply always_invar in ioP.
+contradict IHcnyP.
+trivial.
+Qed.
+
+Lemma inf_often_not_continuously :
+  forall (P : infseq T -> Prop) (s : infseq T),
+  inf_often (~_ P) s -> ~ continuously P s.
+Proof.
+intros P s ioP cnyP.
+induction cnyP.
+  destruct s as [x s].
+  apply always_now in ioP.
+  induction ioP.
+    destruct s0 as [x' s0].
+    apply always_now in H.
+    unfold not_tl in H0.
+    contradict H0.
+    assumption.
+  apply always_invar in H.
+  contradict IHioP.
+  assumption.
+apply inf_often_invar in ioP.
+contradict IHcnyP.
+assumption.
+Qed.
+
 (* connector facts *)
 
 Lemma and_tl_comm : 
@@ -572,11 +594,12 @@ Implicit Arguments eventually_monotonic_simple [T P Q s].
 Implicit Arguments inf_often_monotonic [T P Q s].
 Implicit Arguments continuously_monotonic [T P Q s].
 
-Implicit Arguments continuously_not_inf_often [T P s].
 Implicit Arguments not_eventually_always_not [T P s].
 Implicit Arguments eventually_not_always [T P s].
 Implicit Arguments until_always_not_always [T J P s].
 Implicit Arguments always_not_eventually_not [T P s].
+Implicit Arguments continuously_not_inf_often [T P s].
+Implicit Arguments inf_often_not_continuously [T P s].
 
 Implicit Arguments and_tl_comm [T P Q s].
 Implicit Arguments and_tl_assoc [T P Q R s].
