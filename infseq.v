@@ -108,6 +108,17 @@ Variable T : Type.
 
 (* always facts *)
 
+Lemma always_inv :
+  forall (inv: infseq T -> Prop),
+    (forall x s, inv (Cons x s) -> inv s) -> forall s, inv s -> always inv s.
+Proof.
+intros P invP.
+cofix c.
+intros [x s] Pxs; apply Always; trivial.
+apply c; apply invP in Pxs.
+assumption.
+Qed.
+
 Lemma always_Cons :
   forall (x: T) (s: infseq T) P,
   always P (Cons x s) -> P (Cons x s) /\ always P s.
@@ -563,6 +574,7 @@ Qed.
 
 End sec_modal_op_lemmas.
 
+Implicit Arguments always_inv [T s inv].
 Implicit Arguments always_Cons [T x s P]. 
 Implicit Arguments always_now [T x s P]. 
 Implicit Arguments always_invar [T x s P]. 
