@@ -22,6 +22,7 @@ Definition hd (s:infseq) : T := match s with Cons x _ => x end.
 Definition tl (s:infseq) : infseq := match s with Cons _ s => s end.
 
 Lemma recons : forall s, Cons (hd s) (tl s) = s.
+Proof.
 intros s. 
 (* Trick : simpl doesn't progress, you have to eat s first *)
 case s.  simpl. reflexivity.
@@ -227,6 +228,7 @@ Qed.
 Lemma eventually_until_cumul :
   forall (s: infseq T) P J,
   eventually P s -> until J P s -> eventually (P /\_ until J P) s.
+Proof.
 intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
   intro un. constructor 1. split; assumption.
   intro unxs. case (until_Cons _ _ _ _ unxs). 
