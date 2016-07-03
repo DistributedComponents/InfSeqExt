@@ -63,7 +63,7 @@ CoInductive until (J P: infseq T->Prop) : infseq T -> Prop :=
 
 Inductive eventually (P: infseq T->Prop) : infseq T -> Prop :=
   | E0 : forall s, P s -> eventually P s
-  | E_next : forall x s, eventually P s -> eventually P (Cons x s). 
+  | E_next : forall x s, eventually P s -> eventually P (Cons x s).
 
 Definition inf_often (P: infseq T->Prop) (s: infseq T) : Prop :=
   always (eventually P) s.
@@ -208,6 +208,27 @@ Proof.
 intros x s P al. change (P (Cons x s) \/ eventually P (tl (Cons x s))). case al; auto.
 Qed.
 
+Lemma eventually_trans :
+  forall (P Q inv: infseq T -> Prop),
+  (forall x s, inv (Cons x s) -> inv s) ->
+  (forall s, inv s -> P s -> eventually Q s) ->
+  forall s, inv s -> eventually P s -> eventually Q s.
+Proof.
+intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev].
+  apply PeQ; assumption.
+  constructor 2. apply IHev. apply is_inv with x; assumption.
+Qed.
+
+Lemma not_eventually :
+  forall (P : infseq T -> Prop),
+  forall x s, ~ eventually P (Cons x s) -> ~ eventually P s.
+Proof.
+intros P x s evCP evP.
+contradict evCP.
+apply E_next.
+assumption.
+Qed.
+
 Lemma eventually_next : 
   forall (s: infseq T) P, eventually (next P) s -> eventually P s. 
 Proof.
@@ -254,17 +275,6 @@ induction ev as [s Ps | x s ev induc_hyp].
        clearall. constructor 1; assumption.
        intros s2 Js2 _ e J_until_Q2. rewrite e in induc_hyp; clear e.
        apply induc_hyp; assumption.
-Qed.
-
-Lemma eventually_trans :
-  forall (P Q inv: infseq T -> Prop),
-  (forall x s, inv (Cons x s) -> inv s) ->
-  (forall s, inv s -> P s -> eventually Q s) ->
-  forall s, inv s -> eventually P s -> eventually Q s.
-Proof.
-intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev].
-  apply PeQ; assumption.
-  constructor 2. apply IHev. apply is_inv with x; assumption.
 Qed.
 
 (* inf_often and continuously facts *)
@@ -587,12 +597,13 @@ Implicit Arguments always_inf_often [T s P].
 Implicit Arguments always_continuously [T s P].
 
 Implicit Arguments until_Cons [T x s J P].
-Implicit Arguments eventually_Cons [T x s P]. 
+Implicit Arguments eventually_Cons [T x s P].
+Implicit Arguments eventually_trans [T P Q inv s].
+Implicit Arguments not_eventually [T P x s].
 Implicit Arguments eventually_next [T P s].
 Implicit Arguments eventually_always_cumul [T s P Q].
 Implicit Arguments eventually_until_cumul [T s P J].
 Implicit Arguments until_eventually [T P Q s J].
-Implicit Arguments eventually_trans [T P Q inv s].
 
 Implicit Arguments inf_often_invar [T x s P].
 Implicit Arguments continuously_invar [T x s P].
