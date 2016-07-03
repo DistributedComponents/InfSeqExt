@@ -57,9 +57,13 @@ CoInductive always1 (P: T->Prop) : infseq T -> Prop :=
 CoInductive always (P: infseq T->Prop) : infseq T -> Prop :=
   | Always : forall s, P s -> always P (tl s) -> always P s.
 
-CoInductive until (J P: infseq T->Prop) : infseq T -> Prop :=
-  | Until0 : forall s, P s -> until J P s
-  | Until_tl : forall s, J s -> until J P (tl s) -> until J P s.
+CoInductive weak_until (J P: infseq T->Prop) : infseq T -> Prop :=
+  | W0 : forall s, P s -> weak_until J P s
+  | W_tl : forall s, J s -> weak_until J P (tl s) -> weak_until J P s.
+
+Inductive until (J P: infseq T->Prop) : infseq T -> Prop :=
+  | U0 : forall s, P s -> until J P s
+  | U_next : forall x s, J (Cons x s) -> until J P s -> until J P (Cons x s).
 
 Inductive eventually (P: infseq T->Prop) : infseq T -> Prop :=
   | E0 : forall s, P s -> eventually P s
@@ -89,6 +93,7 @@ Implicit Arguments consecutive [T].
 Implicit Arguments always [T].
 Implicit Arguments always1 [T].
 Implicit Arguments eventually [T].
+Implicit Arguments weak_until [T].
 Implicit Arguments until [T].
 Implicit Arguments inf_often [T].
 Implicit Arguments continuously [T].
@@ -190,14 +195,14 @@ apply E0.
 assumption.
 Qed.
 
-(* until and eventually facts *)
+(* weak_until and eventually facts *)
 
-Lemma until_Cons :
+Lemma weak_until_Cons :
   forall (x: T) (s: infseq T) J P,
-  until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ until J P s).
+  weak_until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ weak_until J P s).
 Proof.
 intros x s J P un. 
-change (P (Cons x s) \/ (J (Cons x s) /\ until J P (tl (Cons x s)))).
+change (P (Cons x s) \/ (J (Cons x s) /\ weak_until J P (tl (Cons x s)))).
 destruct un; intuition.
 Qed.
 
@@ -246,35 +251,55 @@ induction 1 as [s Ps | x s evPs induc_hyp].
   intro al. constructor 2. apply induc_hyp. apply (always_invar _ _ _ al). 
 Qed.
 
-Lemma eventually_until_cumul :
+Lemma eventually_weak_until_cumul :
   forall (s: infseq T) P J,
-  eventually P s -> until J P s -> eventually (P /\_ until J P) s.
+  eventually P s -> weak_until J P s -> eventually (P /\_ weak_until J P) s.
 Proof.
 intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
   intro un. constructor 1. split; assumption.
-  intro unxs. case (until_Cons _ _ _ _ unxs). 
-    intro Pxs. constructor 1; split; assumption. 
-    intros (_, uns). constructor 2. apply induc_hyp. exact uns. 
+  intro unxs. case (weak_until_Cons _ _ _ _ unxs).
+    intro Pxs. constructor 1; split; assumption.
+    intros (_, uns). constructor 2. apply induc_hyp. exact uns.
+Qed.
+
+Lemma weak_until_eventually :
+  forall (P Q J: infseq T -> Prop),
+  (forall s, J s -> P s -> Q s) ->
+  forall s, J s -> weak_until J Q s -> eventually P s -> eventually Q s.
+Proof.
+intros P Q J impl s Js J_weak_until_Q ev.
+genclear J_weak_until_Q; genclear Js.
+induction ev as [s Ps | x s ev induc_hyp].
+  intros Js J_weak_until_Q. constructor 1. apply impl; assumption.
+  intros _ J_weak_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
+  case J_weak_until_Q; clear J_weak_until_Q x.
+    constructor 1; assumption.
+    intros (x, s1) _ J_weak_until_Q e; simpl in *.
+    constructor 2. generalize e J_weak_until_Q; clear e x. (* trick: keep J_weak_until_Q!! *)
+    case J_weak_until_Q; clear J_weak_until_Q s1.
+       clearall. constructor 1; assumption.
+       intros s2 Js2 _ e J_weak_until_Q2. rewrite e in induc_hyp; clear e.
+       apply induc_hyp; assumption.
+Qed.
+
+(* until facts *)
+
+Lemma until_Cons :
+  forall (x: T) (s: infseq T) J P,
+  until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ until J P s).
+Proof.
+intros x s J P ul.
+change (P (Cons x s) \/ (J (Cons x s) /\ until J P (tl (Cons x s)))). case ul; auto.
 Qed.
 
 Lemma until_eventually :
-  forall (P Q J: infseq T -> Prop),
-  (forall s, J s -> P s -> Q s) ->
-  forall s, J s -> until J Q s -> eventually P s -> eventually Q s.
+  forall (P J: infseq T -> Prop),
+  forall s, until J P s -> eventually P s.
 Proof.
-intros P Q J impl s Js J_until_Q ev.
-genclear J_until_Q; genclear Js.
-induction ev as [s Ps | x s ev induc_hyp].
-  intros Js J_until_Q. constructor 1. apply impl; assumption.
-  intros _ J_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
-  case J_until_Q; clear J_until_Q x.
-    constructor 1; assumption.
-    intros (x, s1) _ J_until_Q e; simpl in *.
-    constructor 2. generalize e J_until_Q; clear e x. (* trick: keep J_until_Q!! *)
-    case J_until_Q; clear J_until_Q s1.
-       clearall. constructor 1; assumption.
-       intros s2 Js2 _ e J_until_Q2. rewrite e in induc_hyp; clear e.
-       apply induc_hyp; assumption.
+intros P J s unP.
+induction unP.
+  apply E0; assumption.
+apply E_next; assumption.
 Qed.
 
 (* inf_often and continuously facts *)
@@ -348,15 +373,28 @@ generalize (always_Cons x s P a); simpl; intros (a1, a2). constructor; simpl.
   apply cf. assumption. 
 Qed.
 
+Lemma weak_until_monotonic :
+  forall (P Q J K: infseq T -> Prop),
+  (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
+  forall s, weak_until J P s -> weak_until K Q s.
+Proof.
+intros P Q J K PQ JK.  cofix cf. intros(x, s) un.
+generalize (weak_until_Cons x s J P un); simpl. intros [Pxs | (Jxs, uns)].
+  constructor 1; simpl; auto.
+  constructor 2; simpl; auto.
+Qed.
+
 Lemma until_monotonic :
   forall (P Q J K: infseq T -> Prop),
-  (forall s, P s -> Q s) -> (forall s, J s -> K s) -> 
+  (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
   forall s, until J P s -> until K Q s.
 Proof.
-intros P Q J K PQ JK.  cofix cf. intros(x, s) un. 
-generalize (until_Cons x s J P un); simpl. intros [Pxs | (Jxs, uns)]. 
-  constructor 1; simpl; auto. 
-  constructor 2; simpl; auto. 
+intros P Q J K PQ JK s unJP.
+induction unJP.
+  apply U0, PQ; assumption.
+apply U_next.
+  apply JK; assumption.
+assumption.
 Qed.
 
 Lemma eventually_monotonic :
@@ -452,15 +490,15 @@ contradict IHeP.
 assumption.
 Qed.
 
-Lemma until_always_not_always :
+Lemma weak_until_always_not_always :
   forall (J P : infseq T -> Prop) (s : infseq T),
-  until J P s -> always (~_ P) s -> always J s.
+  weak_until J P s -> always (~_ P) s -> always J s.
 Proof.
 intros J P.
 cofix c.
 intros s unJP alP.
 destruct s as [e s].
-apply until_Cons in unJP.
+apply weak_until_Cons in unJP.
 case unJP.
   intro PC.
   apply always_Cons in alP.
@@ -596,14 +634,17 @@ Implicit Arguments always_always1 [T s P].
 Implicit Arguments always_inf_often [T s P].
 Implicit Arguments always_continuously [T s P].
 
-Implicit Arguments until_Cons [T x s J P].
+Implicit Arguments weak_until_Cons [T x s J P].
 Implicit Arguments eventually_Cons [T x s P].
 Implicit Arguments eventually_trans [T P Q inv s].
 Implicit Arguments not_eventually [T P x s].
 Implicit Arguments eventually_next [T P s].
 Implicit Arguments eventually_always_cumul [T s P Q].
-Implicit Arguments eventually_until_cumul [T s P J].
-Implicit Arguments until_eventually [T P Q s J].
+Implicit Arguments eventually_weak_until_cumul [T s P J].
+Implicit Arguments weak_until_eventually [T P Q s J].
+
+Implicit Arguments until_Cons [T x s J P].
+Implicit Arguments until_eventually [T s J P].
 
 Implicit Arguments inf_often_invar [T x s P].
 Implicit Arguments continuously_invar [T x s P].
@@ -613,6 +654,7 @@ Implicit Arguments now_monotonic [T P Q s].
 Implicit Arguments next_monotonic [T P Q s].
 Implicit Arguments consecutive_monotonic [T P Q s].
 Implicit Arguments always_monotonic [T P Q s].
+Implicit Arguments weak_until_monotonic [T P Q J K s].
 Implicit Arguments until_monotonic [T P Q J K s].
 Implicit Arguments eventually_monotonic [T P Q s].
 Implicit Arguments eventually_monotonic_simple [T P Q s].
@@ -621,7 +663,7 @@ Implicit Arguments continuously_monotonic [T P Q s].
 
 Implicit Arguments not_eventually_always_not [T P s].
 Implicit Arguments eventually_not_always [T P s].
-Implicit Arguments until_always_not_always [T J P s].
+Implicit Arguments weak_until_always_not_always [T J P s].
 Implicit Arguments always_not_eventually_not [T P s].
 Implicit Arguments continuously_not_inf_often [T P s].
 Implicit Arguments inf_often_not_continuously [T P s].
@@ -640,9 +682,10 @@ Ltac monotony :=
      | [ |- consecutive ?P ?s -> consecutive ?Q ?s ] =>
        apply consecutive_monotonic
      | [ |- always ?P ?s -> always ?Q ?s ] => apply always_monotonic
+     | [ |- weak_until ?J ?P ?s -> weak_until ?K ?Q ?s ] => apply weak_until_monotonic
+     | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
      | [ |- ?J ?s -> eventually ?P ?s -> eventually ?Q ?s ] =>
        apply eventually_monotonic
-     | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
      | [ |- continuously ?P ?s -> continuously ?Q ?s ] =>
        apply continuously_monotonic
      | [ |- inf_often ?P ?s -> inf_often ?Q ?s ] =>

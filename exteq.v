@@ -122,17 +122,6 @@ Proof.
 intros P s1 s2 e. do 2 destruct e; simpl. trivial.
 Qed.
 
-Lemma extensional_eventually :
-  forall (P: infseq T -> Prop), 
-  extensional P -> extensional (eventually P). 
-Proof.
-intros P eP s1 s2 e ev1. genclear e; genclear s2. 
-induction ev1 as [s1 ev1 | x1 s1 ev1 induc_hyp].
-  intros s2 e. constructor 1. apply eP with s1; assumption. 
-  intros (x2, s2) e. constructor 2. apply induc_hyp. 
-    case (exteq_inversion e). trivial.  
-Qed.
-
 Lemma extensional_always :
   forall (P: infseq T -> Prop),
   extensional P -> extensional (always P).
@@ -143,16 +132,41 @@ intros (x1, s1) (x2, s2) e al1. case (always_Cons al1); intros Px1s1 als1. const
   simpl. apply cf with s1; try assumption. case (exteq_inversion e); trivial.
 Qed.
 
-Lemma extensional_until :
+Lemma extensional_weak_until :
   forall (P Q: infseq T -> Prop),
-  extensional P -> extensional Q -> extensional (until P Q). 
+  extensional P -> extensional Q -> extensional (weak_until P Q).
 Proof.
 intros P Q eP eQ. cofix cf. 
-intros (x1, s1) (x2, s2) e un1. case (until_Cons un1). 
+intros (x1, s1) (x2, s2) e un1. case (weak_until_Cons un1).
   intro Q1. constructor 1. eapply eQ; eassumption.
   intros (Px1s1, uns1). constructor 2.
     eapply eP; eassumption. 
     simpl. apply cf with s1; try assumption. case (exteq_inversion e); trivial.
+Qed.
+
+Lemma extensional_until :
+  forall (P Q: infseq T -> Prop),
+  extensional P -> extensional Q -> extensional (until P Q).
+Proof.
+intros P Q eP eQ s1 s2 e un1; genclear e; genclear s2.
+induction un1.
+  intros s2 e; apply U0; apply eQ with s; assumption.
+intros (x2, s2) e.
+apply U_next.
+  apply eP with (Cons x s); assumption.
+apply IHun1.
+case (exteq_inversion e). trivial.
+Qed.
+
+Lemma extensional_eventually :
+  forall (P: infseq T -> Prop),
+  extensional P -> extensional (eventually P).
+Proof.
+intros P eP s1 s2 e ev1. genclear e; genclear s2.
+induction ev1 as [s1 ev1 | x1 s1 ev1 induc_hyp].
+  intros s2 e. constructor 1. apply eP with s1; assumption.
+  intros (x2, s2) e. constructor 2. apply induc_hyp.
+    case (exteq_inversion e). trivial.
 Qed.
 
 Lemma extensional_inf_often :

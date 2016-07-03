@@ -191,33 +191,51 @@ intros (x, s) a. rewrite map_Cons in a. case (always_Cons a); intros a1 a2. cons
   simpl. apply cf; assumption. 
 Qed.
 
-Lemma until_map :
+Lemma weak_until_map :
    forall (f: A->B) (J P: infseq A->Prop) (K Q: infseq B->Prop),
    (forall s, J s -> K (map f s)) ->
    (forall s, P s -> Q (map f s)) ->
    forall (s: infseq A),
-   (until J P) s -> (until K Q) (map f s).
+   weak_until J P s -> weak_until K Q (map f s).
 Proof.
 intros f J P K Q JK PQ. cofix cf. 
-intros (x, s) un. case (until_Cons un); clear un.
+intros (x, s) un. case (weak_until_Cons un); clear un.
   intro Pxs; constructor 1. apply PQ. assumption. 
   intros (Jxs, un). rewrite map_Cons. constructor 2.
     rewrite <- map_Cons. auto.
     simpl. auto. 
 Qed.
 
-Lemma until_map_conv :
+Lemma weak_until_map_conv :
    forall (f: A->B) (J P: infseq A->Prop) (K Q: infseq B->Prop),
    (forall s, K (map f s) -> J s) ->
    (forall s, Q (map f s) -> P s) ->
    forall (s: infseq A),
-   (until K Q) (map f s) -> (until J P) s.
+   weak_until K Q (map f s) -> weak_until J P s.
 Proof.
 intros f J P K Q KJ QP. cofix cf.
 intros (x, s) un.
-rewrite map_Cons in un; case (until_Cons un); clear un; rewrite <- map_Cons.
+rewrite map_Cons in un; case (weak_until_Cons un); clear un; rewrite <- map_Cons.
   intro Qxs; constructor 1. apply QP. assumption.
   intros (Kxs, un). constructor 2; simpl; auto.
+Qed.
+
+Lemma until_map :
+   forall (f: A->B) (J P: infseq A->Prop) (K Q: infseq B->Prop),
+   (forall s, J s -> K (map f s)) ->
+   (forall s, P s -> Q (map f s)) ->
+   forall (s: infseq A),
+   until J P s -> until K Q (map f s).
+Proof.
+intros f J P K Q JK PQ s un.
+induction un.
+  apply U0, PQ. assumption.
+rewrite map_Cons.
+apply U_next.
+  rewrite <- map_Cons.
+  apply JK.
+  assumption.
+assumption.
 Qed.
 
 Lemma eventually_map :
