@@ -65,6 +65,10 @@ Inductive until (J P: infseq T->Prop) : infseq T -> Prop :=
   | U0 : forall s, P s -> until J P s
   | U_next : forall x s, J (Cons x s) -> until J P s -> until J P (Cons x s).
 
+CoInductive release (J P: infseq T->Prop) : infseq T -> Prop :=
+  | R0 : forall s, P s -> J s -> release J P s
+  | R_tl : forall s, P s -> release J P (tl s) -> release J P s.
+
 Inductive eventually (P: infseq T->Prop) : infseq T -> Prop :=
   | E0 : forall s, P s -> eventually P s
   | E_next : forall x s, eventually P s -> eventually P (Cons x s).
@@ -95,6 +99,7 @@ Implicit Arguments always1 [T].
 Implicit Arguments eventually [T].
 Implicit Arguments weak_until [T].
 Implicit Arguments until [T].
+Implicit Arguments release [T].
 Implicit Arguments inf_often [T].
 Implicit Arguments continuously [T].
 
@@ -300,6 +305,17 @@ intros P J s unP.
 induction unP.
   apply E0; assumption.
 apply E_next; assumption.
+Qed.
+
+(* release facts *)
+
+Lemma release_Cons :
+  forall (x: T) (s: infseq T) J P,
+  release J P (Cons x s) -> P (Cons x s) /\ (J (Cons x s) \/ release J P s).
+Proof.
+intros x s J P rl.
+change (P (Cons x s) /\ (J (Cons x s) \/ release J P (tl (Cons x s)))).
+destruct rl; intuition.
 Qed.
 
 (* inf_often and continuously facts *)
@@ -645,6 +661,8 @@ Implicit Arguments weak_until_eventually [T P Q s J].
 
 Implicit Arguments until_Cons [T x s J P].
 Implicit Arguments until_eventually [T s J P].
+
+Implicit Arguments release_Cons [T x s J P].
 
 Implicit Arguments inf_often_invar [T x s P].
 Implicit Arguments continuously_invar [T x s P].
