@@ -7,7 +7,7 @@ This project uses [`coqproject.sh`](https://github.com/dwoos/coqproject) for dep
 This file contains the main definitions and results:
 * coinductive definition of infinite sequences
 * definitions and notations for modal operators and connectors
-  - basic modal operators: `now`, `next`, `consecutive`, `always1`, `always`, `until`, `eventually`
+  - basic modal operators: `now`, `next`, `consecutive`, `always1`, `always`, `weak_until`, `until`, `release`, `eventually`
   - composite modal operators: `inf_often`, `continuously`
   - modal connectors: `impl_tl` (`->_`), `and_tl` (`/\_`), `or_tl` (`\/_`), `not_tl` (`~_`)
 * lemmas about modal operators and connectors
