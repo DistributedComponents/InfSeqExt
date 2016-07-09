@@ -30,10 +30,10 @@ Qed.
 
 End sec_infseq.
 
-Implicit Arguments Cons [T].
-Implicit Arguments hd [T].
-Implicit Arguments tl [T].
-Implicit Arguments recons [T].
+Arguments Cons [T] _ _.
+Arguments hd [T] _.
+Arguments tl [T] _.
+Arguments recons [T] _.
 
 (* --------------------------------------------------------------------------- *)
 (* Temporal logic operations *)
@@ -91,22 +91,22 @@ Definition not_tl (P : infseq T -> Prop) : infseq T -> Prop :=
 
 End sec_modal_op_defn.
 
-Implicit Arguments now [T].
-Implicit Arguments next [T].
-Implicit Arguments consecutive [T].
-Implicit Arguments always [T].
-Implicit Arguments always1 [T].
-Implicit Arguments eventually [T].
-Implicit Arguments weak_until [T].
-Implicit Arguments until [T].
-Implicit Arguments release [T].
-Implicit Arguments inf_often [T].
-Implicit Arguments continuously [T].
+Arguments now [T] _ _.
+Arguments next [T] _ _.
+Arguments consecutive [T] _ _.
+Arguments always [T] _ _.
+Arguments always1 [T] _ _.
+Arguments eventually [T] _ _.
+Arguments weak_until [T] _ _ _.
+Arguments until [T] _ _ _.
+Arguments release [T] _ _ _.
+Arguments inf_often [T] _ _.
+Arguments continuously [T] _ _.
 
-Implicit Arguments impl_tl [T].
-Implicit Arguments and_tl [T].
-Implicit Arguments or_tl [T].
-Implicit Arguments not_tl [T].
+Arguments impl_tl [T] _ _ _.
+Arguments and_tl [T] _ _ _.
+Arguments or_tl [T] _ _ _.
+Arguments not_tl [T] _ _.
 
 Notation "A ->_ B" := (impl_tl A B) (right associativity, at level 90).
 Notation "A /\_ B" := (and_tl A B) (right associativity, at level 80).
