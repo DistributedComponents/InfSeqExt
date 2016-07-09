@@ -211,6 +211,32 @@ change (P (Cons x s) \/ (J (Cons x s) /\ weak_until J P (tl (Cons x s)))).
 destruct un; intuition.
 Qed.
 
+Lemma always_weak_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+  always J s -> weak_until J P s.
+Proof.
+intros J P.
+cofix c.
+intros [x s] alJ.
+apply W_tl.
+  apply always_now in alJ.
+  assumption.
+simpl.
+apply c.
+apply always_invar in alJ.
+assumption.
+Qed.
+
+Lemma until_weak_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+  until J P s -> weak_until J P s.
+Proof.
+intros J P s un.
+induction un.
+  apply W0. assumption.
+apply W_tl; trivial.
+Qed.
+
 Lemma eventually_Cons :
   forall (x: T) (s: infseq T) P,
   eventually P (Cons x s) -> P (Cons x s) \/ eventually P s.
@@ -298,7 +324,7 @@ change (P (Cons x s) \/ (J (Cons x s) /\ until J P (tl (Cons x s)))). case ul; a
 Qed.
 
 Lemma until_eventually :
-  forall (P J: infseq T -> Prop),
+  forall (J P : infseq T -> Prop),
   forall s, until J P s -> eventually P s.
 Proof.
 intros P J s unP.
@@ -411,6 +437,25 @@ induction unJP.
 apply U_next.
   apply JK; assumption.
 assumption.
+Qed.
+
+Lemma release_monotonic :
+  forall (P Q J K: infseq T -> Prop),
+  (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
+  forall s, release J P s -> release K Q s.
+Proof.
+intros P Q J K PQ JK.
+cofix cf. intros [x s] rl.
+generalize (release_Cons x s J P rl); simpl. 
+intros [Pxs rlCJP].
+case rlCJP; intros rlJP.
+  apply R0.
+    apply PQ; assumption.
+    apply JK; assumption.
+apply R_tl.
+  apply PQ; assumption.
+simpl.
+apply cf. assumption.
 Qed.
 
 Lemma eventually_monotonic :
@@ -640,58 +685,58 @@ Qed.
 
 End sec_modal_op_lemmas.
 
-Implicit Arguments always_inv [T s inv].
-Implicit Arguments always_Cons [T x s P]. 
-Implicit Arguments always_now [T x s P]. 
-Implicit Arguments always_invar [T x s P]. 
-Implicit Arguments always_tl [T s P].
-Implicit Arguments always_and_tl [T s P Q].
-Implicit Arguments always_always1 [T s P].
-Implicit Arguments always_inf_often [T s P].
-Implicit Arguments always_continuously [T s P].
+Arguments always_inv [T inv] _ [s] _.
+Arguments always_Cons [T x s P] _.
+Arguments always_now [T x s P] _.
+Arguments always_invar [T x s P] _.
+Arguments always_tl [T s P] _.
+Arguments always_and_tl [T P Q s] _ _.
+Arguments always_always1 [T P s].
+Arguments always_inf_often [T P s] _.
+Arguments always_continuously [T P s] _.
 
-Implicit Arguments weak_until_Cons [T x s J P].
-Implicit Arguments eventually_Cons [T x s P].
-Implicit Arguments eventually_trans [T P Q inv s].
-Implicit Arguments not_eventually [T P x s].
-Implicit Arguments eventually_next [T P s].
-Implicit Arguments eventually_always_cumul [T s P Q].
-Implicit Arguments eventually_weak_until_cumul [T s P J].
-Implicit Arguments weak_until_eventually [T P Q s J].
+Arguments weak_until_Cons [T x s J P] _.
+Arguments always_weak_until [T J P s] _.
+Arguments until_weak_until [T J P s] _.
+Arguments eventually_Cons [T x s P] _.
+Arguments eventually_trans [T P Q inv] _ _ [s] _ _.
+Arguments not_eventually [T P x s] _ _.
+Arguments eventually_next [T s P] _.
+Arguments eventually_always_cumul [T s P Q] _ _.
+Arguments eventually_weak_until_cumul [T s P J] _ _.
+Arguments weak_until_eventually [T P Q J] _ [s] _ _ _.
+Arguments until_Cons [T x s J P] _.
+Arguments until_eventually [T J P s] _.
+Arguments release_Cons [T x s J P] _.
+Arguments inf_often_invar [T x s P] _.
+Arguments continuously_invar [T x s P] _.
+Arguments continuously_and_tl [T P Q s] _ _.
 
-Implicit Arguments until_Cons [T x s J P].
-Implicit Arguments until_eventually [T s J P].
+Arguments now_monotonic [T P Q] _ [s] _.
+Arguments next_monotonic [T P Q] _ [s] _.
+Arguments consecutive_monotonic [T P Q] _ [s] _.
+Arguments always_monotonic [T P Q] _ [s] _.
+Arguments weak_until_monotonic [T P Q J K] _ _ [s] _.
+Arguments until_monotonic [T P Q J K] _ _ [s] _.
+Arguments release_monotonic [T P Q J K] _ _ [s] _.
+Arguments eventually_monotonic [T P Q] _ _ _ [s] _ _.
+Arguments eventually_monotonic_simple [T P Q] _ [s] _.
+Arguments inf_often_monotonic [T P Q] _ [s] _.
+Arguments continuously_monotonic [T P Q] _ [s] _.
 
-Implicit Arguments release_Cons [T x s J P].
+Arguments not_eventually_always_not [T P s].
+Arguments eventually_not_always [T P s] _ _.
+Arguments weak_until_always_not_always [T J P s] _ _.
+Arguments always_not_eventually_not [T P s] _ _.
+Arguments continuously_not_inf_often [T P s] _ _.
+Arguments inf_often_not_continuously [T P s] _ _.
 
-Implicit Arguments inf_often_invar [T x s P].
-Implicit Arguments continuously_invar [T x s P].
-Implicit Arguments continuously_and_tl [T P Q s].
-
-Implicit Arguments now_monotonic [T P Q s].
-Implicit Arguments next_monotonic [T P Q s].
-Implicit Arguments consecutive_monotonic [T P Q s].
-Implicit Arguments always_monotonic [T P Q s].
-Implicit Arguments weak_until_monotonic [T P Q J K s].
-Implicit Arguments until_monotonic [T P Q J K s].
-Implicit Arguments eventually_monotonic [T P Q s].
-Implicit Arguments eventually_monotonic_simple [T P Q s].
-Implicit Arguments inf_often_monotonic [T P Q s].
-Implicit Arguments continuously_monotonic [T P Q s].
-
-Implicit Arguments not_eventually_always_not [T P s].
-Implicit Arguments eventually_not_always [T P s].
-Implicit Arguments weak_until_always_not_always [T J P s].
-Implicit Arguments always_not_eventually_not [T P s].
-Implicit Arguments continuously_not_inf_often [T P s].
-Implicit Arguments inf_often_not_continuously [T P s].
-
-Implicit Arguments and_tl_comm [T P Q s].
-Implicit Arguments and_tl_assoc [T P Q R s].
-Implicit Arguments or_tl_comm [T P Q s].
-Implicit Arguments or_tl_assoc [T P Q R s].
-Implicit Arguments not_tl_or_tl [T P Q s].
-Implicit Arguments not_tl_or_tl_and_tl [T P Q s].
+Arguments and_tl_comm [T P Q s].
+Arguments and_tl_assoc [T P Q R s].
+Arguments or_tl_comm [T P Q s].
+Arguments or_tl_assoc [T P Q R s].
+Arguments not_tl_or_tl [T P Q s].
+Arguments not_tl_or_tl_and_tl [T P Q s] _ _.
 
 Ltac monotony := 
   match goal with 
@@ -702,6 +747,7 @@ Ltac monotony :=
      | [ |- always ?P ?s -> always ?Q ?s ] => apply always_monotonic
      | [ |- weak_until ?J ?P ?s -> weak_until ?K ?Q ?s ] => apply weak_until_monotonic
      | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
+     | [ |- release ?J ?P ?s -> release ?K ?Q ?s ] => apply release_monotonic
      | [ |- ?J ?s -> eventually ?P ?s -> eventually ?Q ?s ] =>
        apply eventually_monotonic
      | [ |- continuously ?P ?s -> continuously ?Q ?s ] =>

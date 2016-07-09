@@ -5,6 +5,7 @@ Require Import InfSeqExt.exteq.
 (* Infinite subsequences *)
 
 Section sec_subseq.
+
 Variable T: Type.
 
 (* suff s s'  means  s is a suffix of s' *)

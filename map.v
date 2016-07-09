@@ -18,8 +18,8 @@ Qed.
 
 End sec_map.
 
-Implicit Arguments map [A B].
-Implicit Arguments map_Cons [A B].
+Arguments map [A B] _ _.
+Arguments map_Cons [A B] _ _ _.
 
 (* --------------------------------------------------------------------------- *)
 (* Zipping two infseqs: useful for map theory *)
@@ -39,8 +39,8 @@ Qed.
 
 End sec_zip.
 
-Implicit Arguments zip [A B].
-Implicit Arguments zip_Cons [A B].
+Arguments zip [A B] _ _.
+Arguments zip_Cons [A B] _ _ _ _.
 
 (* --------------------------------------------------------------------------- *)
 (* map and_tl temporal logic *)
@@ -238,6 +238,42 @@ apply U_next.
 assumption.
 Qed.
 
+Lemma release_map :
+   forall (f: A->B) (J P: infseq A->Prop) (K Q: infseq B->Prop),
+   (forall s, J s -> K (map f s)) ->
+   (forall s, P s -> Q (map f s)) ->
+   forall (s: infseq A),
+   release J P s -> release K Q (map f s).
+Proof.
+intros f J P K Q JK PQ. cofix cf.
+intros (x, s) rl. case (release_Cons rl); clear rl.
+  intros Pxs orR.
+  case orR; intro cR.
+    apply R0. apply PQ. assumption.
+    apply JK. assumption.
+apply R_tl.
+  apply PQ. assumption.
+  apply cf. assumption.
+Qed.
+
+Lemma release_map_conv :
+   forall (f: A->B) (J P: infseq A->Prop) (K Q: infseq B->Prop),
+   (forall s, K (map f s) -> J s) ->
+   (forall s, Q (map f s) -> P s) ->
+   forall (s: infseq A),
+   release K Q (map f s) -> release J P s.
+Proof.
+intros f J P K Q KJ QP. cofix cf.
+intros (x, s) rl.
+rewrite map_Cons in rl; case (release_Cons rl); clear rl; rewrite <- map_Cons; intros QC orR; case orR; intro cR.
+  apply R0.
+    apply QP. assumption.
+    apply KJ. assumption.
+  apply R_tl.
+    apply QP. assumption.
+    apply cf. assumption.
+Qed.
+
 Lemma eventually_map :
    forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
    (forall s, P s -> Q (map f s)) ->
@@ -373,7 +409,7 @@ intros f P s. apply eventually_map_conv.
   clear s. intros (x, s). repeat rewrite map_Cons. simpl. trivial.
 Qed.
 
-Lemma ev_map_now_eq :
+Lemma eventually_map_now_eq :
   forall (f: A -> B) a s, eventually (now (eq a)) s -> 
   eventually (now (eq (f a))) (map f s).
 Proof.
@@ -384,6 +420,33 @@ Qed.
 
 End sec_map_modalop. 
 
-(* TODO: implicit arguments for others *)
-Implicit Arguments eventually_map_conv [A B f P s].
-Implicit Arguments eventually_now_map_conv [A B f P s].
+Arguments and_tl_map [A B f P P' Q Q'] _ _ [s] _.
+Arguments and_tl_map_conv [A B f P P' Q Q'] _ _ [s] _.
+Arguments or_tl_map [A B f P P' Q Q'] _ _ [s] _.
+Arguments or_tl_map_conv [A B f P P' Q Q'] _ _ [s] _.
+Arguments impl_tl_map [A B f P P' Q Q'] _ _ [s] _ _.
+Arguments impl_tl_map_conv [A B f P P' Q Q'] _ _ [s] _ _.
+Arguments not_tl_map [A B f P Q] _ [s] _ _.
+Arguments not_tl_map_conv [A B f P Q] _ [s] _ _.
+Arguments now_map [A B f P s] _.
+Arguments now_map_conv [A B f P s] _.
+Arguments next_map [A B f P Q] _ [s] _.
+Arguments next_map_conv [A B f P Q] _ [s] _.
+Arguments consecutive_map [A B f P s] _.
+Arguments consecutive_map_conv [A B f P s] _.
+Arguments always_map [A B f P Q] _ [s] _.
+Arguments always_map_conv [A B f P Q] _ [s] _.
+Arguments weak_until_map [A B f J P K Q] _ _ [s] _.
+Arguments weak_until_map_conv [A B f J P K Q] _ _ [s] _.
+Arguments until_map [A B f J P K Q] _ _ [s] _.
+Arguments release_map [A B f J P K Q] _ _ [s] _.
+Arguments release_map_conv [A B f J P K Q] _ _ [s] _.
+Arguments eventually_map [A B f P Q] _ [s] _.
+Arguments eventually_map_conv [A B f P Q] _ _ _ [s] _.
+Arguments inf_often_map [A B f P Q] _ [s] _.
+Arguments inf_often_map_conv [A B f P Q] _ _ _ [s] _.
+Arguments continuously_map [A B f P Q] _ [s] _.
+Arguments continuously_map_conv [A B f P Q] _ _ _ [s] _.
+Arguments eventually_now_map [A B f P s] _.
+Arguments eventually_now_map_conv [A B f P s] _.
+Arguments eventually_map_now_eq [A B f a s] _.

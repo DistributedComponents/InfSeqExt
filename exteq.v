@@ -42,11 +42,11 @@ Qed.
 
 End sec_exteq.
 
-Implicit Arguments exteq [T]. 
-Implicit Arguments exteq_inversion [T x1 s1 x2 s2]. 
-Implicit Arguments exteq_refl [T]. 
-Implicit Arguments exteq_sym [T]. 
-Implicit Arguments exteq_trans [T]. 
+Arguments exteq [T] _ _.
+Arguments exteq_inversion [T x1 s1 x2 s2] _.
+Arguments exteq_refl [T] _.
+Arguments exteq_sym [T] _ _ _.
+Arguments exteq_trans [T] _ _ _ _ _.
 
 (* --------------------------------------------------------------------------- *)
 (* Extensional equality and temporal logic *)
@@ -158,6 +158,20 @@ apply IHun1.
 case (exteq_inversion e). trivial.
 Qed.
 
+Lemma extensional_release :
+  forall (P Q: infseq T -> Prop),
+  extensional P -> extensional Q -> extensional (release P Q).
+Proof.
+intros P Q eP eQ. cofix cf. 
+intros (x1, s1) (x2, s2) e rl1. case (release_Cons rl1). intros Qx orR. case orR; intro orRx.
+  apply R0.
+    eapply eQ; eassumption.
+    eapply eP; eassumption.
+  apply R_tl.
+    eapply eQ; eassumption.
+    simpl. apply cf with s1; trivial. case (exteq_inversion e); trivial.
+Qed.
+
 Lemma extensional_eventually :
   forall (P: infseq T -> Prop),
   extensional P -> extensional (eventually P).
@@ -185,4 +199,18 @@ Qed.
 
 End sec_exteq_congruence.
 
-Implicit Arguments extensional [T].
+Arguments extensional [T] _.
+Arguments extensional_and_tl [T P Q] _ _ _ _ _ _.
+Arguments extensional_or_tl [T P Q] _ _ _ _ _ _.
+Arguments extensional_impl_tl [T P Q] _ _ _ _ _ _ _.
+Arguments extensional_not_tl [T P] _ _ _ _ _ _.
+Arguments extensional_now [T P] _ _ _ _.
+Arguments extensional_next [T P] _ _ _ _ _.
+Arguments extensional_consecutive [T P] _ _ _ _.
+Arguments extensional_always [T P] _ _ _ _ _.
+Arguments extensional_weak_until [T P Q] _ _ _ _ _ _.
+Arguments extensional_until [T P Q] _ _ _ _ _ _.
+Arguments extensional_release [T P Q] _ _ _ _ _ _.
+Arguments extensional_eventually [T P] _ _ _ _ _.
+Arguments extensional_inf_often [T P] _ _ _ _ _.
+Arguments extensional_continuously [T P] _ _ _ _ _.
