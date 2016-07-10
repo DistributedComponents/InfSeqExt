@@ -382,6 +382,20 @@ apply IHcnyP.
 apply continuously_invar in cnyQ; assumption.
 Qed.
 
+Lemma continuously_inf_often : 
+  forall (P : infseq T -> Prop) (s : infseq T),
+    continuously P s -> inf_often P s.
+Proof.
+intros P.
+cofix c.
+intros s cnyP.
+induction cnyP.
+ apply always_inf_often. assumption.
+ apply Always.
+   apply E_next. destruct s as [s x']. apply always_now in IHcnyP. assumption. 
+   apply IHcnyP.
+Qed.
+
 (* monotony *)
 
 Lemma now_monotonic :
@@ -711,6 +725,7 @@ Arguments release_Cons [T x s J P] _.
 Arguments inf_often_invar [T x s P] _.
 Arguments continuously_invar [T x s P] _.
 Arguments continuously_and_tl [T P Q s] _ _.
+Arguments continuously_inf_often [T P s] _.
 
 Arguments now_monotonic [T P Q] _ [s] _.
 Arguments next_monotonic [T P Q] _ [s] _.
