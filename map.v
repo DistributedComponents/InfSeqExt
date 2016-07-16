@@ -180,15 +180,29 @@ intros (x, s) a. case (always_Cons a); intros a1 a2. constructor.
   rewrite map_Cons; simpl. apply cf; assumption.
 Qed.
 
+Lemma always_map_conv_ext :
+  forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop) (J : infseq A -> Prop),
+    (forall x s, J (Cons x s) -> J s) ->
+    (forall s, J s -> Q (map f s) -> P s) ->
+    forall s, J s -> always Q (map f s) -> always P s.
+Proof.
+intros f J P Q inv JQP. cofix c.
+intros [x s] Js a.
+rewrite map_Cons in a. case (always_Cons a); intros a1 a2. constructor.
+  apply JQP. assumption.
+  rewrite map_Cons; assumption.
+  simpl. apply c.
+    apply (inv x). assumption.
+    assumption.
+Qed.
+
 Lemma always_map_conv :
    forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
    (forall s, Q (map f s) -> P s) ->
    forall (s: infseq A), always Q (map f s) -> always P s.
 Proof.
-intros f P Q QP. cofix cf.
-intros (x, s) a. rewrite map_Cons in a. case (always_Cons a); intros a1 a2. constructor.
-  apply QP. rewrite map_Cons; assumption.
-  simpl. apply cf; assumption. 
+intros f P Q QP s.
+apply (always_map_conv_ext f P Q (fun _ => True)); auto.
 Qed.
 
 Lemma weak_until_map :
@@ -345,8 +359,65 @@ assert (efst: eventually P (map fstAB (zip s (map f s)))).
       constructor 1; simpl. apply QP. assumption. 
       rewrite map_Cons. constructor 2. apply induc_hyp. 
 genclear efst. apply extensional_eventually.
-  exact extP. 
+  exact extP.
   apply exteq_fst_zip.
+Qed.
+
+Lemma eventually_map_conv_ext :
+   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop) (J : infseq A -> Prop),
+   extensional P -> extensional Q -> extensional J ->
+   (forall x s, J (Cons x s) -> J s) ->
+   (forall s, J s -> Q (map f s) -> eventually P s) ->
+   forall s, J s -> eventually Q (map f s) -> eventually P s.
+Proof.
+intros f P Q J extP extQ extJ inv QP s Js ev.
+revert Js.
+assert (efst: J (map fstAB (zip s (map f s))) -> eventually P (map fstAB (zip s (map f s)))).
+   assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
+     clear extP QP P.
+     assert (alzip : (always (now (fun c : A * B => let (x, y) := c in y = f x)) (zip s (map f s)))).
+        clear ev extQ. generalize s. cofix cf. intros (x, s0). constructor.
+          simpl. reflexivity.
+          simpl. apply cf.
+     apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev).
+   clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
+      intros Js.
+      apply QP; assumption.
+      intros Js.
+      rewrite map_Cons.
+      apply E_next.
+      apply induc_hyp.
+      rewrite map_Cons in Js.
+      apply (inv (fstAB c)).
+      assumption.
+intros Js.
+assert (emJ: J (map fstAB (zip s (map f s)))).
+  unfold extensional in extJ.
+  apply (extJ s).
+    apply exteq_sym. apply exteq_fst_zip.
+    assumption.
+apply efst in emJ.
+genclear emJ.
+apply extensional_eventually.
+  exact extP.
+  apply exteq_fst_zip.
+Qed.
+
+Lemma eventually_map_monotonic :
+   forall (f: A->B) (P Q J: infseq A->Prop) (K : infseq B -> Prop),
+   (forall x s, J (Cons x s) -> J s) ->
+   (forall x s, K (map f (Cons x s)) -> K (map f s)) ->
+   (forall s, J s -> K (map f s) -> Q s -> P s) ->
+   forall s, J s -> K (map f s) -> eventually Q s -> eventually P s.
+Proof.
+intros f P Q J K Jinv Kinv JKQP s invJ invK ev.
+induction ev as [s Qs | x s ev IHev].
+  apply E0.
+  apply JKQP; assumption.
+apply E_next.
+apply IHev.
+  apply (Jinv x); assumption.
+  apply (Kinv x); assumption.
 Qed.
 
 Lemma inf_often_map :
