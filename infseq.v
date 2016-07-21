@@ -89,7 +89,13 @@ Definition or_tl (P Q: infseq T -> Prop) : infseq T -> Prop :=
 Definition not_tl (P : infseq T -> Prop) : infseq T -> Prop := 
   fun s => ~ P s.
 
+(* constants *)
+Definition True_tl : infseq T -> Prop := fun _ => True.
+Definition False_tl : infseq T -> Prop := fun _ => False.
+
 End sec_modal_op_defn.
+
+Hint Unfold True_tl False_tl.
 
 Arguments now [T] _ _.
 Arguments next [T] _ _.
@@ -107,6 +113,9 @@ Arguments impl_tl [T] _ _ _.
 Arguments and_tl [T] _ _ _.
 Arguments or_tl [T] _ _ _.
 Arguments not_tl [T] _ _.
+
+Arguments True_tl {T} _.
+Arguments False_tl {T} _.
 
 Notation "A ->_ B" := (impl_tl A B) (right associativity, at level 90).
 Notation "A /\_ B" := (and_tl A B) (right associativity, at level 80).
@@ -489,8 +498,8 @@ Lemma eventually_monotonic_simple :
   (forall s, P s -> Q s) -> 
   forall s, eventually P s -> eventually Q s.
 Proof.
-intros P Q PQ s. 
-apply (eventually_monotonic P Q (fun s:infseq T => True)); auto.
+intros P Q PQ s.
+apply (eventually_monotonic P Q True_tl); auto.
 Qed.
 
 Lemma inf_often_monotonic :
@@ -668,6 +677,8 @@ destruct rl as [Ps rl].
 unfold not_tl in Js.
 case rl; trivial.
 Qed.
+
+
 
 (* connector facts *)
 

@@ -202,7 +202,7 @@ Lemma always_map_conv :
    forall (s: infseq A), always Q (map f s) -> always P s.
 Proof.
 intros f P Q QP s.
-apply (always_map_conv_ext f P Q (fun _ => True)); auto.
+apply (always_map_conv_ext f P Q True_tl); auto.
 Qed.
 
 Lemma weak_until_map :
