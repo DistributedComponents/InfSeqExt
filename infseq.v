@@ -651,6 +651,24 @@ contradict IHcnyP.
 assumption.
 Qed.
 
+Lemma release_not_until : 
+  forall (J P : infseq T -> Prop) (s : infseq T),
+  release J P s -> ~ until (~_ J) (~_ P) s.
+Proof.
+intros J P s rl un.
+induction un as [s Ps |x s Js IHun IH].
+  destruct s as [x s].
+  unfold not_tl in Ps.
+  apply release_Cons in rl.
+  destruct rl as [Psr rl].
+  contradict Ps.
+  assumption.
+apply release_Cons in rl.
+destruct rl as [Ps rl].
+unfold not_tl in Js.
+case rl; trivial.
+Qed.
+
 (* connector facts *)
 
 Lemma and_tl_comm : 
@@ -745,6 +763,7 @@ Arguments weak_until_always_not_always [T J P s] _ _.
 Arguments always_not_eventually_not [T P s] _ _.
 Arguments continuously_not_inf_often [T P s] _ _.
 Arguments inf_often_not_continuously [T P s] _ _.
+Arguments release_not_until [T J P s] _ _.
 
 Arguments and_tl_comm [T P Q s].
 Arguments and_tl_assoc [T P Q R s].
@@ -755,14 +774,20 @@ Arguments not_tl_or_tl_and_tl [T P Q s] _ _.
 
 Ltac monotony := 
   match goal with 
-     | [ |- now ?P ?s -> now ?Q ?s ] => apply now_monotonic
-     | [ |- next ?P ?s -> next ?Q ?s ] => apply next_monotonic
+     | [ |- now ?P ?s -> now ?Q ?s ] =>
+       apply now_monotonic
+     | [ |- next ?P ?s -> next ?Q ?s ] =>
+       apply next_monotonic
      | [ |- consecutive ?P ?s -> consecutive ?Q ?s ] =>
        apply consecutive_monotonic
-     | [ |- always ?P ?s -> always ?Q ?s ] => apply always_monotonic
-     | [ |- weak_until ?J ?P ?s -> weak_until ?K ?Q ?s ] => apply weak_until_monotonic
-     | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] => apply until_monotonic
-     | [ |- release ?J ?P ?s -> release ?K ?Q ?s ] => apply release_monotonic
+     | [ |- always ?P ?s -> always ?Q ?s ] =>
+       apply always_monotonic
+     | [ |- weak_until ?J ?P ?s -> weak_until ?K ?Q ?s ] =>
+       apply weak_until_monotonic
+     | [ |- until ?J ?P ?s -> until ?K ?Q ?s ] =>
+       apply until_monotonic
+     | [ |- release ?J ?P ?s -> release ?K ?Q ?s ] =>
+       apply release_monotonic
      | [ |- ?J ?s -> eventually ?P ?s -> eventually ?Q ?s ] =>
        apply eventually_monotonic
      | [ |- continuously ?P ?s -> continuously ?Q ?s ] =>
