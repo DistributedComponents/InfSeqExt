@@ -29,6 +29,65 @@ apply not_eventually_always_not in evP.
 apply weak_until_always_not_always in wu; trivial.
 Qed.
 
+Lemma not_until_weak_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+    ~ until J P s -> weak_until (J /\_ ~_ P) (~_ J /\_ ~_ P) s.
+Proof.
+intros J P.
+cofix c.
+intros s.
+case (classic (P s)).
+  intros Ps un.
+  contradict un.
+  apply U0.
+  assumption.
+intros Ps.
+case (classic (J s)); destruct s as [x s].
+  intros Js un.
+  apply W_tl.
+    unfold and_tl, not_tl.
+    split; trivial.
+  simpl.
+  apply c.
+  intros unn.
+  contradict un.
+  apply U_next; trivial.
+intros Js un.
+apply W0.
+split; trivial.
+Qed.
+
+Lemma not_weak_until_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+    ~ weak_until J P s -> until (J /\_ ~_ P) (~_ J /\_ ~_ P) s.
+Proof.
+intros J P s wun.
+case (classic (until (J /\_ ~_ P) (~_ J /\_ ~_ P) s)); trivial.
+intros un.
+contradict wun.
+revert s un.
+cofix c.
+intros s.
+case (classic (P s)).
+  intros Ps un.
+  apply W0.
+  assumption.
+intros Ps.
+case (classic (J s)); destruct s as [x s].
+  intros Js un.
+  apply W_tl; trivial.
+  simpl.
+  apply c.
+  intros unn.
+  contradict un.
+  apply U_next; trivial.
+  split; trivial.
+intros Js un.
+contradict un.
+apply U0.
+split; trivial.
+Qed.
+
 Lemma not_eventually_not_always : 
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ eventually (~_ P) s -> always P s.
@@ -172,6 +231,8 @@ Qed.
 End sec_classical.
 
 Arguments weak_until_until_or_always [T J P s] _.
+Arguments not_until_weak_until [T J P s] _.
+Arguments not_weak_until_until [T J P s] _.
 Arguments not_eventually_not_always [T P s] _.
 Arguments not_always_eventually_not [T P s] _.
 Arguments not_until_release [T J P s] _.

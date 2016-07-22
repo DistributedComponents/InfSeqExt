@@ -120,7 +120,7 @@ Arguments False_tl {T} _.
 Notation "A ->_ B" := (impl_tl A B) (right associativity, at level 90).
 Notation "A /\_ B" := (and_tl A B) (right associativity, at level 80).
 Notation "A \/_ B" := (or_tl A B) (right associativity, at level 85).
-Notation "~_ A" := (not_tl A) (right associativity, at level 90).
+Notation "~_ A" := (not_tl A) (right associativity, at level 75).
 
 Section sec_modal_op_lemmas.
 
@@ -735,6 +735,54 @@ contradict Js.
 assumption.
 Qed.
 
+Lemma weak_until_not_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+    weak_until (J /\_ ~_ P) (~_ J /\_ ~_ P) s -> ~ until J P s.
+Proof.
+intros J P s wu un.
+induction un.
+  destruct s as [x s].
+  apply weak_until_Cons in wu.
+  case wu; unfold not_tl, and_tl.
+    intros [Js Ps].
+    contradict Ps.
+    assumption.
+  intros [[Js Ps] wun].
+  contradict Ps.
+  assumption.
+apply weak_until_Cons in wu.
+case wu.
+  unfold not_tl, and_tl.
+  intros [Js Ps].
+  contradict Js.
+  assumption.
+intros [[Js Ps] wun].
+contradict IHun.
+assumption.
+Qed.
+
+Lemma until_not_weak_until :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+    until (J /\_ ~_ P) (~_ J /\_ ~_ P) s -> ~ weak_until J P s.
+Proof.
+intros J P s un wun.
+induction un as [s JPs | x s JPs IHun IH]; unfold not_tl, and_tl in JPs; destruct JPs as [Js Ps].
+  destruct s as [x s].
+  apply weak_until_Cons in wun.
+  case wun; trivial.
+  intros [JCs wu].
+  contradict Js.
+  assumption.
+apply weak_until_Cons in wun.
+case wun.
+  intros PCs.
+  contradict Ps.
+  assumption.
+intros [JCs wu].
+contradict IH.
+assumption.
+Qed.
+
 (* connector facts *)
 
 Lemma and_tl_comm : 
@@ -834,6 +882,8 @@ Arguments continuously_not_inf_often [T P s] _ _.
 Arguments inf_often_not_continuously [T P s] _ _.
 Arguments release_not_until [T J P s] _ _.
 Arguments until_not_release [T J P s] _ _.
+Arguments weak_until_not_until [T J P s] _ _.
+Arguments until_not_weak_until [T J P s] _ _.
 
 Arguments and_tl_comm [T P Q s].
 Arguments and_tl_assoc [T P Q R s].
