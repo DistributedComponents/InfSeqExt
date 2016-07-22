@@ -165,6 +165,28 @@ Proof.
 intros (x, s). simpl. apply always_invar. 
 Qed.
 
+Lemma always_not_false :
+  forall s : infseq T, always (~_ False_tl) s.
+Proof.
+cofix c.
+intros [x s].
+apply Always.
+  unfold not_tl, False_tl.
+  intros H.
+  trivial.
+apply c.
+Qed.
+
+Lemma always_true :
+  forall s : infseq T, always True_tl s.
+Proof.
+cofix c.
+intros [x s].
+apply Always.
+  unfold True_tl; trivial.
+apply c.
+Qed.
+
 Lemma always_and_tl :
   forall (P Q : infseq T -> Prop),
     forall s, always P s -> always Q s -> always (P /\_ Q) s.
@@ -193,6 +215,36 @@ intros P s. split; genclear s.
     apply alwn; assumption.
 Qed.
 
+Lemma always_weak_until :
+  forall (J P : infseq T -> Prop) (s : infseq T), always J s -> weak_until J P s.
+Proof.
+intros J P.
+cofix c.
+intros [x s] alJ.
+apply W_tl.
+  apply always_now in alJ.
+  assumption.
+simpl.
+apply c.
+apply always_invar in alJ.
+assumption.
+Qed.
+
+Lemma always_release :
+  forall (J P : infseq T -> Prop) (s : infseq T), always P s -> release J P s.
+Proof.
+intros J P.
+cofix c.
+intros [x s] al.
+apply R_tl.
+  apply always_now in al.
+  assumption.
+simpl.
+apply c.
+apply always_invar in al.
+assumption.
+Qed.
+
 Lemma always_inf_often :
    forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
 Proof.
@@ -218,22 +270,6 @@ Proof.
 intros x s J P un. 
 change (P (Cons x s) \/ (J (Cons x s) /\ weak_until J P (tl (Cons x s)))).
 destruct un; intuition.
-Qed.
-
-Lemma always_weak_until :
-  forall (J P : infseq T -> Prop) (s : infseq T),
-  always J s -> weak_until J P s.
-Proof.
-intros J P.
-cofix c.
-intros [x s] alJ.
-apply W_tl.
-  apply always_now in alJ.
-  assumption.
-simpl.
-apply c.
-apply always_invar in alJ.
-assumption.
 Qed.
 
 Lemma until_weak_until :
@@ -678,7 +714,26 @@ unfold not_tl in Js.
 case rl; trivial.
 Qed.
 
-
+Lemma until_not_release :
+  forall (J P : infseq T -> Prop) (s : infseq T),
+  until J P s -> ~ release (~_ J) (~_ P) s.
+Proof.
+intros J P s un rl.
+induction un.
+  destruct s as [x s].
+  apply release_Cons in rl.
+  destruct rl as [Ps rl].
+  unfold not_tl in Ps.
+  contradict Ps.
+  assumption.
+apply release_Cons in rl.
+destruct rl as [Ps rl].
+case rl; trivial.
+unfold not_tl.
+intros Js.
+contradict Js.
+assumption.
+Qed.
 
 (* connector facts *)
 
@@ -733,13 +788,16 @@ Arguments always_Cons [T x s P] _.
 Arguments always_now [T x s P] _.
 Arguments always_invar [T x s P] _.
 Arguments always_tl [T s P] _.
+Arguments always_not_false [T s].
+Arguments always_true [T s].
 Arguments always_and_tl [T P Q s] _ _.
 Arguments always_always1 [T P s].
+Arguments always_weak_until [T J P s] _.
+Arguments always_release [T J P s] _.
 Arguments always_inf_often [T P s] _.
 Arguments always_continuously [T P s] _.
 
 Arguments weak_until_Cons [T x s J P] _.
-Arguments always_weak_until [T J P s] _.
 Arguments until_weak_until [T J P s] _.
 Arguments eventually_Cons [T x s P] _.
 Arguments eventually_trans [T P Q inv] _ _ [s] _ _.
@@ -775,6 +833,7 @@ Arguments always_not_eventually_not [T P s] _ _.
 Arguments continuously_not_inf_often [T P s] _ _.
 Arguments inf_often_not_continuously [T P s] _ _.
 Arguments release_not_until [T J P s] _ _.
+Arguments until_not_release [T J P s] _ _.
 
 Arguments and_tl_comm [T P Q s].
 Arguments and_tl_assoc [T P Q R s].
