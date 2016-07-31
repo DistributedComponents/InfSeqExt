@@ -176,8 +176,8 @@ Lemma always_map :
 Proof.
 intros f P Q PQ. cofix cf.
 intros (x, s) a. case (always_Cons a); intros a1 a2. constructor.
-  apply PQ. assumption.
-  rewrite map_Cons; simpl. apply cf; assumption.
+- apply PQ. assumption.
+- rewrite map_Cons; simpl. apply cf; assumption.
 Qed.
 
 Lemma always_map_conv_ext :
@@ -189,11 +189,11 @@ Proof.
 intros f J P Q inv JQP. cofix c.
 intros [x s] Js a.
 rewrite map_Cons in a. case (always_Cons a); intros a1 a2. constructor.
-  apply JQP. assumption.
+- apply JQP. assumption.
   rewrite map_Cons; assumption.
-  simpl. apply c.
-    apply (inv x). assumption.
-    assumption.
+- simpl. apply c.
+  * apply (inv x). assumption.
+  * assumption.
 Qed.
 
 Lemma always_map_conv :
@@ -212,12 +212,12 @@ Lemma weak_until_map :
    forall (s: infseq A),
    weak_until J P s -> weak_until K Q (map f s).
 Proof.
-intros f J P K Q JK PQ. cofix cf. 
+intros f J P K Q JK PQ. cofix cf.
 intros (x, s) un. case (weak_until_Cons un); clear un.
-  intro Pxs; constructor 1. apply PQ. assumption. 
-  intros (Jxs, un). rewrite map_Cons. constructor 2.
-    rewrite <- map_Cons. auto.
-    simpl. auto. 
+- intro Pxs; constructor 1. apply PQ. assumption.
+- intros (Jxs, un). rewrite map_Cons. constructor 2.
+  * rewrite <- map_Cons. auto.
+  * simpl. auto.
 Qed.
 
 Lemma weak_until_map_conv :
@@ -230,8 +230,8 @@ Proof.
 intros f J P K Q KJ QP. cofix cf.
 intros (x, s) un.
 rewrite map_Cons in un; case (weak_until_Cons un); clear un; rewrite <- map_Cons.
-  intro Qxs; constructor 1. apply QP. assumption.
-  intros (Kxs, un). constructor 2; simpl; auto.
+- intro Qxs; constructor 1. apply QP. assumption.
+- intros (Kxs, un). constructor 2; simpl; auto.
 Qed.
 
 Lemma until_map :
@@ -243,13 +243,13 @@ Lemma until_map :
 Proof.
 intros f J P K Q JK PQ s un.
 induction un.
-  apply U0, PQ. assumption.
-rewrite map_Cons.
-apply U_next.
-  rewrite <- map_Cons.
-  apply JK.
-  assumption.
-assumption.
+- apply U0, PQ. assumption.
+- rewrite map_Cons.
+  apply U_next.
+  * rewrite <- map_Cons.
+    apply JK.
+    assumption.
+  * assumption.
 Qed.
 
 Lemma release_map :
@@ -261,13 +261,14 @@ Lemma release_map :
 Proof.
 intros f J P K Q JK PQ. cofix cf.
 intros (x, s) rl. case (release_Cons rl); clear rl.
-  intros Pxs orR.
-  case orR; intro cR.
-    apply R0. apply PQ. assumption.
-    apply JK. assumption.
-apply R_tl.
-  apply PQ. assumption.
-  apply cf. assumption.
+intros Pxs orR.
+case orR; intro cR.
+- apply R0.
+  * apply PQ. assumption.
+  * apply JK. assumption.
+- apply R_tl.
+  * apply PQ. assumption.
+  * apply cf. assumption.
 Qed.
 
 Lemma release_map_conv :
@@ -280,12 +281,12 @@ Proof.
 intros f J P K Q KJ QP. cofix cf.
 intros (x, s) rl.
 rewrite map_Cons in rl; case (release_Cons rl); clear rl; rewrite <- map_Cons; intros QC orR; case orR; intro cR.
-  apply R0.
-    apply QP. assumption.
-    apply KJ. assumption.
-  apply R_tl.
-    apply QP. assumption.
-    apply cf. assumption.
+- apply R0.
+  * apply QP. assumption.
+  * apply KJ. assumption.
+- apply R_tl.
+  * apply QP. assumption.
+  * apply cf. assumption.
 Qed.
 
 Lemma eventually_map :
@@ -294,9 +295,9 @@ Lemma eventually_map :
    forall s, eventually P s -> eventually Q (map f s).
 Proof.
 intros f P Q PQ s e. induction e as [s ok | x s e induc_hyp].
-  destruct s as (x, s); simpl in *. rewrite map_Cons. constructor 1.
-    rewrite <- map_Cons. apply PQ. exact ok.
-  rewrite map_Cons. constructor 2. exact induc_hyp.
+- destruct s as (x, s); simpl in *. rewrite map_Cons. constructor 1.
+  rewrite <- map_Cons. apply PQ. exact ok.
+- rewrite map_Cons. constructor 2. exact induc_hyp.
 Qed.
 
 (* The converse seems to require much more work *)
@@ -329,12 +330,12 @@ Lemma eventually_map_conv_aux :
    eventually Q sB ->
    eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s)).
 Proof.
-intros f Q extQ s sB al ev. genclear al; genclear s. 
+intros f Q extQ s sB al ev. genclear al; genclear s.
 induction ev as [(b, sB) QbsB | b sB ev induc_hyp].
-  intros (a, sA) al.
+- intros (a, sA) al.
   constructor 1. apply extQ with (Cons b sB); try assumption.
-     apply exteq_zip_map. apply al.
-  intros (a, sA). repeat rewrite map_Cons. repeat rewrite zip_Cons.
+  apply exteq_zip_map. apply al.
+- intros (a, sA). repeat rewrite map_Cons. repeat rewrite zip_Cons.
   intro al. case (always_Cons al); simpl. clear al; intros e al. 
   constructor 2. apply induc_hyp. exact al. 
 Qed.
@@ -347,18 +348,17 @@ Lemma eventually_map_conv :
 Proof.
 intros f P Q extP extQ QP s ev.
 assert (efst: eventually P (map fstAB (zip s (map f s)))).
-   assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
-     clear extP QP P. 
-     assert (alzip : (always (now (fun c : A * B => let (x, y) := c in y = f x)) (zip s (map f s)))).
-        clear ev extQ. generalize s; clear s. cofix cf. intros (x, s). constructor. 
-          simpl. reflexivity. 
-          simpl. apply cf. 
-
-     apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev). 
-   clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
-      constructor 1; simpl. apply QP. assumption. 
-      rewrite map_Cons. constructor 2. apply induc_hyp. 
-genclear efst. apply extensional_eventually.
+- assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
+  * clear extP QP P.
+    assert (alzip : (always (now (fun c : A * B => let (x, y) := c in y = f x)) (zip s (map f s)))).
+    + clear ev extQ. generalize s; clear s. cofix cf. intros (x, s). constructor.
+      -- simpl. reflexivity.
+      -- simpl. apply cf.
+    + apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev).
+  * clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
+    + constructor 1; simpl. apply QP. assumption. 
+    + rewrite map_Cons. constructor 2. apply induc_hyp. 
+- genclear efst. apply extensional_eventually.
   exact extP.
   apply exteq_fst_zip.
 Qed.
@@ -373,34 +373,34 @@ Proof.
 intros f P Q J extP extQ extJ inv QP s Js ev.
 revert Js.
 assert (efst: J (map fstAB (zip s (map f s))) -> eventually P (map fstAB (zip s (map f s)))).
-   assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
-     clear extP QP P.
+- assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
+  * clear extP QP P.
      assert (alzip : (always (now (fun c : A * B => let (x, y) := c in y = f x)) (zip s (map f s)))).
-        clear ev extQ. generalize s. cofix cf. intros (x, s0). constructor.
-          simpl. reflexivity.
-          simpl. apply cf.
-     apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev).
-   clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
-      intros Js.
+     + clear ev extQ. generalize s. cofix cf. intros (x, s0). constructor.
+       -- simpl. reflexivity.
+       -- simpl. apply cf.
+     + apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev).
+  * clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
+    + intros Js.
       apply QP; assumption.
-      intros Js.
+    + intros Js.
       rewrite map_Cons.
       apply E_next.
       apply induc_hyp.
       rewrite map_Cons in Js.
       apply (inv (fstAB c)).
       assumption.
-intros Js.
-assert (emJ: J (map fstAB (zip s (map f s)))).
-  unfold extensional in extJ.
-  apply (extJ s).
-    apply exteq_sym. apply exteq_fst_zip.
-    assumption.
-apply efst in emJ.
-genclear emJ.
-apply extensional_eventually.
-  exact extP.
-  apply exteq_fst_zip.
+- intros Js.
+  assert (emJ: J (map fstAB (zip s (map f s)))).
+  * unfold extensional in extJ.
+    apply (extJ s).
+    + apply exteq_sym. apply exteq_fst_zip.
+    + assumption.
+  * apply efst in emJ.
+    genclear emJ.
+    apply extensional_eventually.
+    + exact extP.
+    + apply exteq_fst_zip.
 Qed.
 
 Lemma eventually_map_monotonic :
@@ -412,12 +412,12 @@ Lemma eventually_map_monotonic :
 Proof.
 intros f P Q J K Jinv Kinv JKQP s invJ invK ev.
 induction ev as [s Qs | x s ev IHev].
-  apply E0.
+- apply E0.
   apply JKQP; assumption.
-apply E_next.
-apply IHev.
-  apply (Jinv x); assumption.
-  apply (Kinv x); assumption.
+- apply E_next.
+  apply IHev.
+  * apply (Jinv x); assumption.
+  * apply (Kinv x); assumption.
 Qed.
 
 Lemma inf_often_map :
@@ -475,9 +475,9 @@ Lemma eventually_now_map_conv :
    eventually (now P) (map f s) -> eventually (now (fun x => P (f x))) s.
 Proof.
 intros f P s. apply eventually_map_conv.
-  apply extensional_now. 
-  apply extensional_now. 
-  clear s. intros (x, s). repeat rewrite map_Cons. simpl. trivial.
+- apply extensional_now. 
+- apply extensional_now. 
+- clear s. intros (x, s). repeat rewrite map_Cons. simpl. trivial.
 Qed.
 
 Lemma eventually_map_now_eq :

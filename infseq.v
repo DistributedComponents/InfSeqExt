@@ -171,10 +171,8 @@ Proof.
 cofix c.
 intros [x s].
 apply Always.
-  unfold not_tl, False_tl.
-  intros H.
-  trivial.
-apply c.
+- unfold not_tl, False_tl; auto.
+- apply c.
 Qed.
 
 Lemma always_true :
@@ -183,8 +181,8 @@ Proof.
 cofix c.
 intros [x s].
 apply Always.
-  unfold True_tl; trivial.
-apply c.
+- unfold True_tl; trivial.
+- apply c.
 Qed.
 
 Lemma always_and_tl :
@@ -197,22 +195,21 @@ intros s alP alQ.
 destruct alP.
 destruct alQ.
 apply Always.
-  split; assumption.
-apply c; assumption.
+- split; assumption.
+- apply c; assumption.
 Qed.
 
 Lemma always_always1 :
    forall P (s: infseq T), always (now P) s <-> always1 P s.
 Proof.
 intros P s. split; genclear s.
-  cofix alwn.
+- cofix alwn.
   intros s a; case a; clear a s. intros (x, s); simpl. constructor.
-    assumption.
-    apply alwn; assumption.
-
-  cofix alwn. destruct 1. constructor; simpl.
-    assumption.
-    apply alwn; assumption.
+  * assumption.
+  * apply alwn; assumption.
+- cofix alwn. destruct 1. constructor; simpl.
+  * assumption.
+  * apply alwn; assumption.
 Qed.
 
 Lemma always_weak_until :
@@ -222,12 +219,11 @@ intros J P.
 cofix c.
 intros [x s] alJ.
 apply W_tl.
-  apply always_now in alJ.
+- apply always_now in alJ. 
   assumption.
-simpl.
-apply c.
-apply always_invar in alJ.
-assumption.
+- apply c.
+  apply always_invar in alJ.
+  assumption.
 Qed.
 
 Lemma always_release :
@@ -237,20 +233,20 @@ intros J P.
 cofix c.
 intros [x s] al.
 apply R_tl.
-  apply always_now in al.
+- apply always_now in al.
   assumption.
-simpl.
-apply c.
-apply always_invar in al.
-assumption.
+- simpl.
+  apply c.
+  apply always_invar in al.
+  assumption.
 Qed.
 
 Lemma always_inf_often :
    forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
 Proof.
 intros P. cofix f. intros s a. destruct a. constructor.
-   constructor 1. assumption.
-   apply f. assumption.
+- constructor 1. assumption.
+- apply f. assumption.
 Qed.
 
 Lemma always_continuously :
@@ -278,8 +274,8 @@ Lemma until_weak_until :
 Proof.
 intros J P s un.
 induction un.
-  apply W0. assumption.
-apply W_tl; trivial.
+- apply W0. assumption.
+- apply W_tl; trivial.
 Qed.
 
 Lemma eventually_Cons :
@@ -296,8 +292,8 @@ Lemma eventually_trans :
   forall s, inv s -> eventually P s -> eventually Q s.
 Proof.
 intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev].
-  apply PeQ; assumption.
-  constructor 2. apply IHev. apply is_inv with x; assumption.
+- apply PeQ; assumption.
+- constructor 2. apply IHev. apply is_inv with x; assumption.
 Qed.
 
 Lemma not_eventually :
@@ -313,18 +309,18 @@ Qed.
 Lemma eventually_next : 
   forall (s: infseq T) P, eventually (next P) s -> eventually P s. 
 Proof.
-intros e P ev. induction ev as [(x, s) Ps | x s ev induc_hyp]. 
-  constructor 2; constructor 1; exact Ps. 
-  constructor 2. apply induc_hyp.
+intros e P ev. induction ev as [(x, s) Ps | x s ev induc_hyp].
+- constructor 2; constructor 1; exact Ps. 
+- constructor 2. apply induc_hyp.
 Qed.
 
 Lemma eventually_always_cumul :
   forall (s: infseq T) P Q,
   eventually P s -> always Q s -> eventually (P /\_ always Q) s.
 Proof.
-induction 1 as [s Ps | x s evPs induc_hyp]. 
-  intro al. constructor 1. split; assumption.
-  intro al. constructor 2. apply induc_hyp. apply (always_invar _ _ _ al). 
+induction 1 as [s Ps | x s evPs induc_hyp]; intro al.
+- constructor 1. split; assumption.
+- constructor 2. apply induc_hyp. eapply always_invar; eauto.
 Qed.
 
 Lemma eventually_weak_until_cumul :
@@ -332,10 +328,10 @@ Lemma eventually_weak_until_cumul :
   eventually P s -> weak_until J P s -> eventually (P /\_ weak_until J P) s.
 Proof.
 intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
-  intro un. constructor 1. split; assumption.
-  intro unxs. case (weak_until_Cons _ _ _ _ unxs).
-    intro Pxs. constructor 1; split; assumption.
-    intros (_, uns). constructor 2. apply induc_hyp. exact uns.
+- intro un. constructor 1. split; assumption.
+- intro unxs. case (weak_until_Cons _ _ _ _ unxs).
+  * intro Pxs. constructor 1; split; assumption.
+  * intros (_, uns). constructor 2. apply induc_hyp. exact uns.
 Qed.
 
 Lemma weak_until_eventually :
@@ -346,16 +342,16 @@ Proof.
 intros P Q J impl s Js J_weak_until_Q ev.
 genclear J_weak_until_Q; genclear Js.
 induction ev as [s Ps | x s ev induc_hyp].
-  intros Js J_weak_until_Q. constructor 1. apply impl; assumption.
-  intros _ J_weak_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
+- intros Js J_weak_until_Q. constructor 1. apply impl; assumption.
+- intros _ J_weak_until_Q. cut (s = tl (Cons x s)); [idtac | reflexivity].
   case J_weak_until_Q; clear J_weak_until_Q x.
-    constructor 1; assumption.
-    intros (x, s1) _ J_weak_until_Q e; simpl in *.
+  * constructor 1; assumption.
+  * intros (x, s1) _ J_weak_until_Q e; simpl in *.
     constructor 2. generalize e J_weak_until_Q; clear e x. (* trick: keep J_weak_until_Q!! *)
     case J_weak_until_Q; clear J_weak_until_Q s1.
-       clearall. constructor 1; assumption.
-       intros s2 Js2 _ e J_weak_until_Q2. rewrite e in induc_hyp; clear e.
-       apply induc_hyp; assumption.
+    + clearall. constructor 1; assumption.
+    + intros s2 Js2 _ e J_weak_until_Q2. rewrite e in induc_hyp; clear e.
+      apply induc_hyp; assumption.
 Qed.
 
 (* until facts *)
@@ -374,8 +370,8 @@ Lemma until_eventually :
 Proof.
 intros P J s unP.
 induction unP.
-  apply E0; assumption.
-apply E_next; assumption.
+- apply E0; assumption.
+- apply E_next; assumption.
 Qed.
 
 (* release facts *)
@@ -414,17 +410,17 @@ Lemma continuously_and_tl :
 Proof.
 intros P Q s cnyP.
 induction cnyP as [s alP|].
-  intro cnyQ.
+- intro cnyQ.
   induction cnyQ.
   apply E0.
   apply always_and_tl; trivial.
   apply E_next.
   apply IHcnyQ.
   apply always_invar in alP; assumption.
-intro cnyQ.
-apply E_next.
-apply IHcnyP.
-apply continuously_invar in cnyQ; assumption.
+- intro cnyQ.
+  apply E_next.
+  apply IHcnyP.
+  apply continuously_invar in cnyQ; assumption.
 Qed.
 
 Lemma continuously_inf_often : 
@@ -435,10 +431,10 @@ intros P.
 cofix c.
 intros s cnyP.
 induction cnyP.
- apply always_inf_often. assumption.
- apply Always.
-   apply E_next. destruct s as [s x']. apply always_now in IHcnyP. assumption. 
-   apply IHcnyP.
+- apply always_inf_often. assumption.
+- apply Always.
+  * apply E_next. destruct s as [s x']. apply always_now in IHcnyP. assumption.
+  * apply IHcnyP.
 Qed.
 
 (* monotony *)
@@ -470,8 +466,8 @@ Lemma always_monotonic :
 Proof.
 intros P Q PQ.  cofix cf. intros(x, s) a. 
 generalize (always_Cons x s P a); simpl; intros (a1, a2). constructor; simpl.
-  apply PQ. assumption. 
-  apply cf. assumption. 
+- apply PQ. assumption.
+- apply cf. assumption.
 Qed.
 
 Lemma weak_until_monotonic :
@@ -481,8 +477,8 @@ Lemma weak_until_monotonic :
 Proof.
 intros P Q J K PQ JK.  cofix cf. intros(x, s) un.
 generalize (weak_until_Cons x s J P un); simpl. intros [Pxs | (Jxs, uns)].
-  constructor 1; simpl; auto.
-  constructor 2; simpl; auto.
+- constructor 1; simpl; auto.
+- constructor 2; simpl; auto.
 Qed.
 
 Lemma until_monotonic :
@@ -492,10 +488,10 @@ Lemma until_monotonic :
 Proof.
 intros P Q J K PQ JK s unJP.
 induction unJP.
-  apply U0, PQ; assumption.
-apply U_next.
-  apply JK; assumption.
-assumption.
+- apply U0, PQ; assumption.
+- apply U_next.
+  * apply JK; assumption.
+  * assumption.
 Qed.
 
 Lemma release_monotonic :
@@ -505,16 +501,16 @@ Lemma release_monotonic :
 Proof.
 intros P Q J K PQ JK.
 cofix cf. intros [x s] rl.
-generalize (release_Cons x s J P rl); simpl. 
+generalize (release_Cons x s J P rl); simpl.
 intros [Pxs rlCJP].
 case rlCJP; intros rlJP.
-  apply R0.
-    apply PQ; assumption.
-    apply JK; assumption.
-apply R_tl.
-  apply PQ; assumption.
-simpl.
-apply cf. assumption.
+- apply R0.
+  * apply PQ; assumption.
+  * apply JK; assumption.
+- apply R_tl.
+  * apply PQ; assumption.
+  * simpl.
+    apply cf. assumption.
 Qed.
 
 Lemma eventually_monotonic :
@@ -525,7 +521,7 @@ Lemma eventually_monotonic :
 Proof.
 intros P Q J is_inv JPQ s Js ev. 
 apply (eventually_trans P Q J is_inv); try assumption. 
-  intros; constructor 1. apply JPQ; assumption. 
+intros; constructor 1. apply JPQ; assumption. 
 Qed.
 
 (* corollary which turns out to be too weak in practice *)
@@ -568,29 +564,29 @@ Lemma not_eventually_always_not :
 Proof.
 intros P.
 split; genclear s.
-  cofix c.
+- cofix c.
   intros s evP.
   destruct s as [e s].
   apply Always.
-    unfold not_tl.
+  * unfold not_tl.
     intro Pn.
     case evP.
     apply E0.
     assumption.
-  apply c.
-  intro evPn.
-  contradict evP.
-  apply E_next.
-  assumption.
-intros s alP evP.
-induction evP.
-  destruct s as [e s].
-  apply always_Cons in alP.
-  destruct alP as [nP alP].
-  unfold not_tl in nP.
-  contradict nP; assumption.
-apply always_invar in alP.
-contradict IHevP; assumption.
+  * apply c.
+    intro evPn.
+    contradict evP.
+    apply E_next.
+    assumption.
+- intros s alP evP.
+  induction evP.
+  * destruct s as [e s].
+    apply always_Cons in alP.
+    destruct alP as [nP alP].
+    unfold not_tl in nP.
+    contradict nP; assumption.
+  * apply always_invar in alP.
+    contradict IHevP; assumption.
 Qed.
 
 Lemma eventually_not_always :
@@ -599,15 +595,15 @@ Lemma eventually_not_always :
 Proof.
 intros P s eP alP.
 induction eP.
- destruct s as [x s].
- unfold not_tl in H.
- contradict H.
- apply always_Cons in alP.
- destruct alP as [PC alP].
- assumption.
-apply always_invar in alP.
-contradict IHeP.
-assumption.
+- destruct s as [x s].
+  unfold not_tl in H.
+  contradict H.
+  apply always_Cons in alP.
+  destruct alP as [PC alP].
+  assumption.
+- apply always_invar in alP.
+  contradict IHeP.
+  assumption.
 Qed.
 
 Lemma weak_until_always_not_always :
@@ -620,18 +616,18 @@ intros s unJP alP.
 destruct s as [e s].
 apply weak_until_Cons in unJP.
 case unJP.
-  intro PC.
+- intro PC.
   apply always_Cons in alP.
   destruct alP as [nP alP].
   unfold not_tl in nP.
   contradict nP.
   assumption.
-intros Jun.
-destruct Jun as [JC unJPs].
-apply Always; trivial.
-apply c; trivial.
-apply always_invar in alP.
-assumption.
+- intros Jun.
+  destruct Jun as [JC unJPs].
+  apply Always; trivial.
+  apply c; trivial.
+  apply always_invar in alP.
+  assumption.
 Qed.
 
 Lemma always_not_eventually_not :
@@ -640,14 +636,14 @@ Lemma always_not_eventually_not :
 Proof.
 intros P s alP evP.
 induction evP.
-  unfold not_tl in H.
+- unfold not_tl in H.
   contradict H.
   destruct s as [x s].
   apply always_now in alP.
   assumption.
-contradict IHevP.
-apply always_invar in alP.
-assumption.
+- contradict IHevP.
+  apply always_invar in alP.
+  assumption.
 Qed.
 
 Lemma continuously_not_inf_often :
@@ -656,22 +652,22 @@ Lemma continuously_not_inf_often :
 Proof.
 intros P s cnyP.
 induction cnyP.
-  destruct s as [e s].
+- destruct s as [e s].
   intros ifP.
   apply always_now in ifP.
   induction ifP.
-    destruct s0 as [e0 s0].
+  * destruct s0 as [e0 s0].
     apply always_now in H.
     unfold not_tl in H.
     contradict H.
     trivial.
-  apply always_invar in H.
-  contradict IHifP.
+  * apply always_invar in H.
+    contradict IHifP.
+    trivial.
+- intro ioP.
+  apply always_invar in ioP.
+  contradict IHcnyP.
   trivial.
-intro ioP.
-apply always_invar in ioP.
-contradict IHcnyP.
-trivial.
 Qed.
 
 Lemma inf_often_not_continuously :
@@ -680,20 +676,20 @@ Lemma inf_often_not_continuously :
 Proof.
 intros P s ioP cnyP.
 induction cnyP.
-  destruct s as [x s].
+- destruct s as [x s].
   apply always_now in ioP.
   induction ioP.
-    destruct s0 as [x' s0].
+  * destruct s0 as [x' s0].
     apply always_now in H.
     unfold not_tl in H0.
     contradict H0.
     assumption.
-  apply always_invar in H.
-  contradict IHioP.
+  * apply always_invar in H.
+    contradict IHioP.
+    assumption.
+- apply inf_often_invar in ioP.
+  contradict IHcnyP.
   assumption.
-apply inf_often_invar in ioP.
-contradict IHcnyP.
-assumption.
 Qed.
 
 Lemma release_not_until : 
@@ -702,16 +698,16 @@ Lemma release_not_until :
 Proof.
 intros J P s rl un.
 induction un as [s Ps |x s Js IHun IH].
-  destruct s as [x s].
+- destruct s as [x s].
   unfold not_tl in Ps.
   apply release_Cons in rl.
   destruct rl as [Psr rl].
   contradict Ps.
   assumption.
-apply release_Cons in rl.
-destruct rl as [Ps rl].
-unfold not_tl in Js.
-case rl; trivial.
+- apply release_Cons in rl.
+  destruct rl as [Ps rl].
+  unfold not_tl in Js.
+  case rl; trivial.
 Qed.
 
 Lemma until_not_release :
@@ -720,19 +716,19 @@ Lemma until_not_release :
 Proof.
 intros J P s un rl.
 induction un.
-  destruct s as [x s].
+- destruct s as [x s].
   apply release_Cons in rl.
   destruct rl as [Ps rl].
   unfold not_tl in Ps.
   contradict Ps.
   assumption.
-apply release_Cons in rl.
-destruct rl as [Ps rl].
-case rl; trivial.
-unfold not_tl.
-intros Js.
-contradict Js.
-assumption.
+- apply release_Cons in rl.
+  destruct rl as [Ps rl].
+  case rl; trivial.
+  unfold not_tl.
+  intros Js.
+  contradict Js.
+  assumption.
 Qed.
 
 Lemma weak_until_not_until :
@@ -741,24 +737,24 @@ Lemma weak_until_not_until :
 Proof.
 intros J P s wu un.
 induction un.
-  destruct s as [x s].
+- destruct s as [x s].
   apply weak_until_Cons in wu.
   case wu; unfold not_tl, and_tl.
-    intros [Js Ps].
+  * intros [Js Ps].
     contradict Ps.
     assumption.
-  intros [[Js Ps] wun].
-  contradict Ps.
-  assumption.
-apply weak_until_Cons in wu.
-case wu.
-  unfold not_tl, and_tl.
-  intros [Js Ps].
-  contradict Js.
-  assumption.
-intros [[Js Ps] wun].
-contradict IHun.
-assumption.
+  * intros [[Js Ps] wun].
+    contradict Ps.
+    assumption.
+- apply weak_until_Cons in wu.
+  case wu.
+  * unfold not_tl, and_tl.
+    intros [Js Ps].
+    contradict Js.
+    assumption.
+  * intros [[Js Ps] wun].
+    contradict IHun.
+    assumption.
 Qed.
 
 Lemma until_not_weak_until :
@@ -767,20 +763,20 @@ Lemma until_not_weak_until :
 Proof.
 intros J P s un wun.
 induction un as [s JPs | x s JPs IHun IH]; unfold not_tl, and_tl in JPs; destruct JPs as [Js Ps].
-  destruct s as [x s].
+- destruct s as [x s].
   apply weak_until_Cons in wun.
   case wun; trivial.
   intros [JCs wu].
   contradict Js.
   assumption.
-apply weak_until_Cons in wun.
-case wun.
-  intros PCs.
-  contradict Ps.
-  assumption.
-intros [JCs wu].
-contradict IH.
-assumption.
+- apply weak_until_Cons in wun.
+  case wun.
+  * intros PCs.
+    contradict Ps.
+    assumption.
+  * intros [JCs wu].
+    contradict IH.
+    assumption.
 Qed.
 
 (* connector facts *)
@@ -818,8 +814,8 @@ Lemma not_tl_or_tl :
   (~_ (P \/_ Q)) s <-> ((~_ P) /\_ (~_ Q)) s.
 Proof.
 intros P Q s; unfold not_tl, and_tl, or_tl; split; [ intros PQs | intros [Ps Qs] PQs].
-  split; intro Ps; contradict PQs; [left|right]; assumption.
-case PQs; assumption.
+- split; intro Ps; contradict PQs; [left|right]; assumption.
+- case PQs; assumption.
 Qed.
 
 Lemma not_tl_or_tl_and_tl : 
