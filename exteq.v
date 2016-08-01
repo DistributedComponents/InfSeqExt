@@ -64,8 +64,8 @@ Lemma extensional_and_tl :
   extensional P -> extensional Q -> extensional (P /\_ Q).
 Proof. 
 intros P Q eP eQ s1 s2 e. destruct e; simpl. unfold and_tl. intuition.
-  apply eP with (Cons x s1); [constructor; assumption | assumption]. 
-  apply eQ with (Cons x s1); [constructor; assumption | assumption]. 
+- apply eP with (Cons x s1); [constructor; assumption | assumption].
+- apply eQ with (Cons x s1); [constructor; assumption | assumption].
 Qed.
 
 Lemma extensional_or_tl :
