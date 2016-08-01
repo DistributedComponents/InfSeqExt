@@ -59,6 +59,18 @@ Variable T: Type.
 Definition extensional (P: infseq T -> Prop) :=
   forall s1 s2, exteq s1 s2 -> P s1 -> P s2.
 
+Lemma extensional_True_tl :
+  extensional True_tl.
+Proof.
+intros s1 s2 eq; auto.
+Qed.
+
+Lemma extensional_False_tl :
+  extensional False_tl.
+Proof.
+intros s1 s2 eq; auto.
+Qed.
+
 Lemma extensional_and_tl :
   forall (P Q: infseq T -> Prop), 
   extensional P -> extensional Q -> extensional (P /\_ Q).
@@ -200,6 +212,8 @@ Qed.
 End sec_exteq_congruence.
 
 Arguments extensional [T] _.
+Arguments extensional_True_tl [T] _ _ _ _.
+Arguments extensional_False_tl [T] _ _ _ _.
 Arguments extensional_and_tl [T P Q] _ _ _ _ _ _.
 Arguments extensional_or_tl [T P Q] _ _ _ _ _ _.
 Arguments extensional_impl_tl [T P Q] _ _ _ _ _ _ _.

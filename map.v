@@ -8,7 +8,7 @@ Variable A B: Type.
 
 CoFixpoint map (f: A->B) (s: infseq A): infseq B :=
   match s with
-   Cons x s => Cons (f x) (map f s)
+    | Cons x s => Cons (f x) (map f s)
   end.
 
 Lemma map_Cons: forall (f:A->B) x s, map f (Cons x s) = Cons (f x) (map f s).
@@ -340,29 +340,6 @@ induction ev as [(b, sB) QbsB | b sB ev induc_hyp].
   constructor 2. apply induc_hyp. exact al. 
 Qed.
 
-Lemma eventually_map_conv :
-   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
-   extensional P -> extensional Q -> 
-   (forall s, Q (map f s) -> P s) ->
-   forall s, eventually Q (map f s) -> eventually P s.
-Proof.
-intros f P Q extP extQ QP s ev.
-assert (efst: eventually P (map fstAB (zip s (map f s)))).
-- assert (evzip : eventually (fun sc => Q (map f (map fstAB sc))) (zip s (map f s))).
-  * clear extP QP P.
-    assert (alzip : (always (now (fun c : A * B => let (x, y) := c in y = f x)) (zip s (map f s)))).
-    + clear ev extQ. generalize s; clear s. cofix cf. intros (x, s). constructor.
-      -- simpl. reflexivity.
-      -- simpl. apply cf.
-    + apply (eventually_map_conv_aux f Q extQ s (map f s) alzip ev).
-  * clear ev. induction evzip as [((a, b), sAB) QabsAB | c sAB _ induc_hyp].
-    + constructor 1; simpl. apply QP. assumption. 
-    + rewrite map_Cons. constructor 2. apply induc_hyp. 
-- genclear efst. apply extensional_eventually.
-  exact extP.
-  apply exteq_fst_zip.
-Qed.
-
 Lemma eventually_map_conv_ext :
    forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop) (J : infseq A -> Prop),
    extensional P -> extensional Q -> extensional J ->
@@ -401,6 +378,18 @@ assert (efst: J (map fstAB (zip s (map f s))) -> eventually P (map fstAB (zip s 
     apply extensional_eventually.
     + exact extP.
     + apply exteq_fst_zip.
+Qed.
+
+Lemma eventually_map_conv :
+   forall (f: A->B) (P: infseq A->Prop) (Q: infseq B->Prop),
+   extensional P -> extensional Q ->
+   (forall s, Q (map f s) -> P s) ->
+   forall s, eventually Q (map f s) -> eventually P s.
+Proof.
+intros f P Q extP extQ QP s.
+apply eventually_map_conv_ext with (J := True_tl); auto.
+- apply extensional_True_tl.
+- intros. apply E0. apply QP. assumption.
 Qed.
 
 Lemma eventually_map_monotonic :
@@ -506,6 +495,7 @@ Arguments next_map_conv [A B f P Q] _ [s] _.
 Arguments consecutive_map [A B f P s] _.
 Arguments consecutive_map_conv [A B f P s] _.
 Arguments always_map [A B f P Q] _ [s] _.
+Arguments always_map_conv_ext [A B f P Q J] _ _ [s] _ _.
 Arguments always_map_conv [A B f P Q] _ [s] _.
 Arguments weak_until_map [A B f J P K Q] _ _ [s] _.
 Arguments weak_until_map_conv [A B f J P K Q] _ _ [s] _.
@@ -513,7 +503,9 @@ Arguments until_map [A B f J P K Q] _ _ [s] _.
 Arguments release_map [A B f J P K Q] _ _ [s] _.
 Arguments release_map_conv [A B f J P K Q] _ _ [s] _.
 Arguments eventually_map [A B f P Q] _ [s] _.
+Arguments eventually_map_conv_ext [A B f P Q J] _ _ _ _ _ [s] _ _.
 Arguments eventually_map_conv [A B f P Q] _ _ _ [s] _.
+Arguments eventually_map_monotonic [A B f P Q] _ _ _ _ _ [s] _ _ _.
 Arguments inf_often_map [A B f P Q] _ [s] _.
 Arguments inf_often_map_conv [A B f P Q] _ _ _ [s] _.
 Arguments continuously_map [A B f P Q] _ [s] _.
