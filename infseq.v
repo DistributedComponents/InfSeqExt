@@ -268,6 +268,23 @@ change (P (Cons x s) \/ (J (Cons x s) /\ weak_until J P (tl (Cons x s)))).
 destruct un; intuition.
 Qed.
 
+Lemma weak_until_always :
+  forall (J J' P : infseq T -> Prop) s,
+    weak_until J P s ->
+    always J' s ->
+    weak_until (J' /\_ J) P s.
+Proof.
+cofix cf.
+intros J J' P s Hweak Halways.
+destruct s.
+inversion Hweak.
+- now eauto using W0.
+- inversion Halways.
+  eapply W_tl.
+  + now unfold and_tl.
+  + simpl. now eauto.
+Qed.
+
 Lemma until_weak_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
   until J P s -> weak_until J P s.
@@ -842,6 +859,7 @@ Arguments always_inf_often [T P s] _.
 Arguments always_continuously [T P s] _.
 
 Arguments weak_until_Cons [T x s J P] _.
+Arguments weak_until_always [T J J' P s] _ _.
 Arguments until_weak_until [T J P s] _.
 Arguments eventually_Cons [T x s P] _.
 Arguments eventually_trans [T P Q inv] _ _ [s] _ _.
