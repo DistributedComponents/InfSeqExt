@@ -27,7 +27,7 @@ CoInductive subseqs : infseq (infseq T) -> infseq T -> Prop :=
              suff (hd si) s -> subseqs (tl si) (tl (hd si)) -> subseqs si s. 
 
 Lemma subseqs_subseqs' : forall si s, subseqs si s -> subseqs' si s.
-Proof.
+Proof using.
 cofix subsub. 
 intros si s su. case su; clear su si s.
 intros (s1, si) s0. simpl. intros su sb. constructor.
@@ -48,7 +48,7 @@ Qed.
 (* In the next lemma, always1 is bit overkill, but is just what is needed below *)
 Lemma subseqs_eventually : 
   forall P si s, subseqs si s -> always1 P si -> eventually P s.
-Proof.
+Proof using.
 intros P si s su. destruct su as [si s sf _].
 induction sf as [ | x s0 _ Hrec]; intro a. 
 - constructor 1. case a; simpl. intros; assumption.
@@ -56,7 +56,7 @@ induction sf as [ | x s0 _ Hrec]; intro a.
 Qed.
 
 Lemma subseqs_tl : forall si s, subseqs si (tl s) -> subseqs si s. 
-Proof.
+Proof using.
 intros si (x, s) su. simpl in su.
 case su. clear su si s; intros si s sf su.
 constructor.
@@ -66,7 +66,7 @@ Qed.
 
 Theorem subseq_inf_often :
   forall P si s, subseqs si s -> always1 P si -> inf_often P s.
-Proof.
+Proof using.
 intros P. red. cofix sio.
 intros si s su a.
 constructor.
@@ -87,7 +87,7 @@ Inductive ex_suff (P: infseq T -> Prop) (s' : infseq T) : Prop :=
 
 Theorem eventually_suff :
    forall P s', eventually P s' -> ex_suff P s'.
-Proof.
+Proof using.
 intros P s ev. induction ev.   
 - exists s; [ constructor | assumption]. 
 - destruct IHev. exists s0. 
@@ -113,7 +113,7 @@ Inductive mem (x : T) : infseq T -> Prop :=
   | mem_next : forall y s, mem x s -> mem x (Cons y s).
 
 Lemma subseqb_included : forall x s, mem x s -> forall s', subseqb s s' -> mem x s'.
-Proof.
+Proof using.
 induction 1 as [| y s M IHmem].
 - inversion_clear 1 as [a b c ssp _]. induction ssp as [s' ssp | ].
   inversion_clear ssp. constructor.

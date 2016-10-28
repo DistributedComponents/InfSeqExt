@@ -8,7 +8,7 @@ Variable T : Type.
 Lemma weak_until_until_or_always :
   forall (J P : infseq T -> Prop) (s : infseq T),
     weak_until J P s -> until J P s \/ always J s.
-Proof.
+Proof using.
 intros J P s.
 case (classic (eventually P s)).
 - intros evP wu.
@@ -32,7 +32,7 @@ Qed.
 Lemma not_until_weak_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
     ~ until J P s -> weak_until (J /\_ ~_ P) (~_ J /\_ ~_ P) s.
-Proof.
+Proof using.
 intros J P.
 cofix c.
 intros s.
@@ -60,7 +60,7 @@ Qed.
 Lemma not_weak_until_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
     ~ weak_until J P s -> until (J /\_ ~_ P) (~_ J /\_ ~_ P) s.
-Proof.
+Proof using.
 intros J P s wun.
 case (classic (until (J /\_ ~_ P) (~_ J /\_ ~_ P) s)); trivial.
 intros un.
@@ -91,7 +91,7 @@ Qed.
 Lemma not_eventually_not_always : 
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ eventually (~_ P) s -> always P s.
-Proof.
+Proof using.
 intros P.
 cofix c.
 intro s.
@@ -114,7 +114,7 @@ Qed.
 Lemma not_always_eventually_not : 
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ always P s -> eventually (~_ P) s.
-Proof.
+Proof using.
 intros P s alP.
 case (classic ((eventually (~_ P)) s)); trivial.
 intros evP.
@@ -126,7 +126,7 @@ Qed.
 Lemma not_until_release : 
   forall (J P : infseq T -> Prop) (s : infseq T),
   ~ until (~_ J) (~_ P) s -> release J P s.
-Proof.
+Proof using.
 intros J P.
 cofix c.
 intros s.
@@ -157,7 +157,7 @@ Qed.
 Lemma not_release_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
   ~ release (~_ J) (~_ P) s -> until J P s.
-Proof.
+Proof using.
 intros J P s rl.
 case (classic (until J P s)); trivial.
 intros un.
@@ -188,7 +188,7 @@ Qed.
 Lemma not_inf_often_continuously_not : 
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ inf_often P s -> continuously (~_ P) s.
-Proof.
+Proof using.
 intros P s ioP.
 apply not_always_eventually_not in ioP.
 induction ioP.
@@ -202,7 +202,7 @@ Qed.
 Lemma not_continously_inf_often_not :
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ continuously P s -> inf_often (~_ P) s.
-Proof.
+Proof using.
 intros P.
 cofix c.
 intros [x s] cnyP.
@@ -223,7 +223,7 @@ Qed.
 Lemma not_tl_and_tl_or_tl :
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (~_ (P /\_ Q)) s -> ((~_ P) \/_ (~_ Q)) s.
-Proof.
+Proof using.
 intros P Q s; unfold not_tl, and_tl, or_tl.
 apply not_and_or.
 Qed.

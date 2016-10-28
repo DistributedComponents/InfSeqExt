@@ -22,7 +22,7 @@ Definition hd (s:infseq) : T := match s with Cons x _ => x end.
 Definition tl (s:infseq) : infseq := match s with Cons _ s => s end.
 
 Lemma recons : forall s, Cons (hd s) (tl s) = s.
-Proof.
+Proof using.
 intros s. 
 (* Trick : simpl doesn't progress, you have to eat s first *)
 case s.  simpl. reflexivity.
@@ -131,7 +131,7 @@ Variable T : Type.
 Lemma always_inv :
   forall (inv: infseq T -> Prop),
     (forall x s, inv (Cons x s) -> inv s) -> forall s, inv s -> always inv s.
-Proof.
+Proof using.
 intros P invP.
 cofix c.
 intros [x s] Pxs; apply Always; trivial.
@@ -142,32 +142,32 @@ Qed.
 Lemma always_Cons :
   forall (x: T) (s: infseq T) P,
   always P (Cons x s) -> P (Cons x s) /\ always P s.
-Proof.
+Proof using.
 intros x s P al. change (P (Cons x s) /\ always P (tl (Cons x s))). 
 destruct al. split; assumption.
 Qed.
 
 Lemma always_now :
   forall (x: T) (s: infseq T) P, always P (Cons x s) -> P (Cons x s).
-Proof.
+Proof using.
 intros x s P al. case (always_Cons x s P al); trivial.
 Qed.
 
 Lemma always_invar :
   forall (x: T) (s: infseq T) P, always P (Cons x s) -> always P s.
-Proof.
+Proof using.
 intros x s P al. case (always_Cons x s P al); trivial.
 Qed.
 
 Lemma always_tl :
   forall (s: infseq T) P, always P s -> always P (tl s).
-Proof.
+Proof using.
 intros (x, s). simpl. apply always_invar. 
 Qed.
 
 Lemma always_not_false :
   forall s : infseq T, always (~_ False_tl) s.
-Proof.
+Proof using.
 cofix c.
 intros [x s].
 apply Always.
@@ -177,7 +177,7 @@ Qed.
 
 Lemma always_true :
   forall s : infseq T, always True_tl s.
-Proof.
+Proof using.
 cofix c.
 intros [x s].
 apply Always.
@@ -188,7 +188,7 @@ Qed.
 Lemma always_and_tl :
   forall (P Q : infseq T -> Prop),
     forall s, always P s -> always Q s -> always (P /\_ Q) s.
-Proof.
+Proof using.
 intros P Q.
 cofix c.
 intros s alP alQ.
@@ -201,7 +201,7 @@ Qed.
 
 Lemma always_always1 :
    forall P (s: infseq T), always (now P) s <-> always1 P s.
-Proof.
+Proof using.
 intros P s. split; genclear s.
 - cofix alwn.
   intros s a; case a; clear a s. intros (x, s); simpl. constructor.
@@ -214,7 +214,7 @@ Qed.
 
 Lemma always_weak_until :
   forall (J P : infseq T -> Prop) (s : infseq T), always J s -> weak_until J P s.
-Proof.
+Proof using.
 intros J P.
 cofix c.
 intros [x s] alJ.
@@ -228,7 +228,7 @@ Qed.
 
 Lemma always_release :
   forall (J P : infseq T -> Prop) (s : infseq T), always P s -> release J P s.
-Proof.
+Proof using.
 intros J P.
 cofix c.
 intros [x s] al.
@@ -243,7 +243,7 @@ Qed.
 
 Lemma always_inf_often :
    forall (P: infseq T -> Prop) (s : infseq T), always P s -> inf_often P s.
-Proof.
+Proof using.
 intros P. cofix f. intros s a. destruct a. constructor.
 - constructor 1. assumption.
 - apply f. assumption.
@@ -251,7 +251,7 @@ Qed.
 
 Lemma always_continuously :
    forall (P: infseq T -> Prop) (s : infseq T), always P s -> continuously P s.
-Proof.
+Proof using.
 intros P s alP.
 apply E0.
 assumption.
@@ -262,7 +262,7 @@ Qed.
 Lemma weak_until_Cons :
   forall (x: T) (s: infseq T) J P,
   weak_until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ weak_until J P s).
-Proof.
+Proof using.
 intros x s J P un. 
 change (P (Cons x s) \/ (J (Cons x s) /\ weak_until J P (tl (Cons x s)))).
 destruct un; intuition.
@@ -273,7 +273,7 @@ Lemma weak_until_always :
     weak_until J P s ->
     always J' s ->
     weak_until (J' /\_ J) P s.
-Proof.
+Proof using.
 cofix cf.
 intros J J' P s Hweak Halways.
 destruct s.
@@ -288,7 +288,7 @@ Qed.
 Lemma until_weak_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
   until J P s -> weak_until J P s.
-Proof.
+Proof using.
 intros J P s un.
 induction un.
 - apply W0. assumption.
@@ -298,7 +298,7 @@ Qed.
 Lemma eventually_Cons :
   forall (x: T) (s: infseq T) P,
   eventually P (Cons x s) -> P (Cons x s) \/ eventually P s.
-Proof.
+Proof using.
 intros x s P al. change (P (Cons x s) \/ eventually P (tl (Cons x s))). case al; auto.
 Qed.
 
@@ -307,7 +307,7 @@ Lemma eventually_trans :
   (forall x s, inv (Cons x s) -> inv s) ->
   (forall s, inv s -> P s -> eventually Q s) ->
   forall s, inv s -> eventually P s -> eventually Q s.
-Proof.
+Proof using.
 intros P Q inv is_inv PeQ s invs ev. induction ev as [s Ps | x s ev IHev].
 - apply PeQ; assumption.
 - constructor 2. apply IHev. apply is_inv with x; assumption.
@@ -316,7 +316,7 @@ Qed.
 Lemma not_eventually :
   forall (P : infseq T -> Prop),
   forall x s, ~ eventually P (Cons x s) -> ~ eventually P s.
-Proof.
+Proof using.
 intros P x s evCP evP.
 contradict evCP.
 apply E_next.
@@ -325,7 +325,7 @@ Qed.
 
 Lemma eventually_next : 
   forall (s: infseq T) P, eventually (next P) s -> eventually P s. 
-Proof.
+Proof using.
 intros e P ev. induction ev as [(x, s) Ps | x s ev induc_hyp].
 - constructor 2; constructor 1; exact Ps. 
 - constructor 2. apply induc_hyp.
@@ -334,7 +334,7 @@ Qed.
 Lemma eventually_always_cumul :
   forall (s: infseq T) P Q,
   eventually P s -> always Q s -> eventually (P /\_ always Q) s.
-Proof.
+Proof using.
 induction 1 as [s Ps | x s evPs induc_hyp]; intro al.
 - constructor 1. split; assumption.
 - constructor 2. apply induc_hyp. eapply always_invar; eauto.
@@ -343,7 +343,7 @@ Qed.
 Lemma eventually_weak_until_cumul :
   forall (s: infseq T) P J,
   eventually P s -> weak_until J P s -> eventually (P /\_ weak_until J P) s.
-Proof.
+Proof using.
 intros s P J ev. induction ev as [s Ps | x s evPs induc_hyp].
 - intro un. constructor 1. split; assumption.
 - intro unxs. case (weak_until_Cons _ _ _ _ unxs).
@@ -355,7 +355,7 @@ Lemma weak_until_eventually :
   forall (P Q J: infseq T -> Prop),
   (forall s, J s -> P s -> Q s) ->
   forall s, J s -> weak_until J Q s -> eventually P s -> eventually Q s.
-Proof.
+Proof using.
 intros P Q J impl s Js J_weak_until_Q ev.
 genclear J_weak_until_Q; genclear Js.
 induction ev as [s Ps | x s ev induc_hyp].
@@ -376,7 +376,7 @@ Qed.
 Lemma until_Cons :
   forall (x: T) (s: infseq T) J P,
   until J P (Cons x s) -> P (Cons x s) \/ (J (Cons x s) /\ until J P s).
-Proof.
+Proof using.
 intros x s J P ul.
 change (P (Cons x s) \/ (J (Cons x s) /\ until J P (tl (Cons x s)))). case ul; auto.
 Qed.
@@ -384,7 +384,7 @@ Qed.
 Lemma until_eventually :
   forall (J P : infseq T -> Prop),
   forall s, until J P s -> eventually P s.
-Proof.
+Proof using.
 intros P J s unP.
 induction unP.
 - apply E0; assumption.
@@ -396,7 +396,7 @@ Qed.
 Lemma release_Cons :
   forall (x: T) (s: infseq T) J P,
   release J P (Cons x s) -> P (Cons x s) /\ (J (Cons x s) \/ release J P s).
-Proof.
+Proof using.
 intros x s J P rl.
 change (P (Cons x s) /\ (J (Cons x s) \/ release J P (tl (Cons x s)))).
 destruct rl; intuition.
@@ -406,13 +406,13 @@ Qed.
 
 Lemma inf_often_invar :
   forall (x: T) (s: infseq T) P, inf_often P (Cons x s) -> inf_often P s.
-Proof.
+Proof using.
 intros x s P; apply always_invar.
 Qed.
 
 Lemma continuously_invar :
   forall (x: T) (s: infseq T) P, continuously P (Cons x s) -> continuously P s.
-Proof.
+Proof using.
 intros x s P cny.
 apply eventually_Cons in cny.
 case cny; trivial.
@@ -424,7 +424,7 @@ Qed.
 Lemma continuously_and_tl :
   forall (P Q : infseq T -> Prop) (s : infseq T),
   continuously P s -> continuously Q s -> continuously (P /\_ Q) s.
-Proof.
+Proof using.
 intros P Q s cnyP.
 induction cnyP as [s alP|].
 - intro cnyQ.
@@ -443,7 +443,7 @@ Qed.
 Lemma continuously_inf_often : 
   forall (P : infseq T -> Prop) (s : infseq T),
     continuously P s -> inf_often P s.
-Proof.
+Proof using.
 intros P.
 cofix c.
 intros s cnyP.
@@ -459,28 +459,28 @@ Qed.
 Lemma now_monotonic :
   forall (P Q: T -> Prop), 
   (forall x, P x -> Q x) -> forall s, now P s -> now Q s.
-Proof.
+Proof using.
 intros P Q PQ (x, s) nP; simpl. apply PQ. assumption.
 Qed.
 
 Lemma next_monotonic :
   forall (P Q: infseq T -> Prop),
   (forall s, P s -> Q s) -> forall s, next P s -> next Q s.
-Proof.
+Proof using.
 intros P Q PQ [x s]; apply PQ.
 Qed.
 
 Lemma consecutive_monotonic :
   forall (P Q: T -> T -> Prop), 
   (forall x y, P x y -> Q x y) -> forall s, consecutive P s -> consecutive Q s.
-Proof.
+Proof using.
 intros P Q PQ (x, (y, s)) nP; simpl. apply PQ. assumption.
 Qed.
 
 Lemma always_monotonic :
   forall (P Q: infseq T -> Prop),
   (forall s, P s -> Q s) -> forall s, always P s -> always Q s.
-Proof.
+Proof using.
 intros P Q PQ.  cofix cf. intros(x, s) a. 
 generalize (always_Cons x s P a); simpl; intros (a1, a2). constructor; simpl.
 - apply PQ. assumption.
@@ -491,7 +491,7 @@ Lemma weak_until_monotonic :
   forall (P Q J K: infseq T -> Prop),
   (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
   forall s, weak_until J P s -> weak_until K Q s.
-Proof.
+Proof using.
 intros P Q J K PQ JK.  cofix cf. intros(x, s) un.
 generalize (weak_until_Cons x s J P un); simpl. intros [Pxs | (Jxs, uns)].
 - constructor 1; simpl; auto.
@@ -502,7 +502,7 @@ Lemma until_monotonic :
   forall (P Q J K: infseq T -> Prop),
   (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
   forall s, until J P s -> until K Q s.
-Proof.
+Proof using.
 intros P Q J K PQ JK s unJP.
 induction unJP.
 - apply U0, PQ; assumption.
@@ -515,7 +515,7 @@ Lemma release_monotonic :
   forall (P Q J K: infseq T -> Prop),
   (forall s, P s -> Q s) -> (forall s, J s -> K s) ->
   forall s, release J P s -> release K Q s.
-Proof.
+Proof using.
 intros P Q J K PQ JK.
 cofix cf. intros [x s] rl.
 generalize (release_Cons x s J P rl); simpl.
@@ -535,7 +535,7 @@ Lemma eventually_monotonic :
   (forall x s, J (Cons x s) -> J s) ->
   (forall s, J s -> P s -> Q s) -> 
   forall s, J s -> eventually P s -> eventually Q s.
-Proof.
+Proof using.
 intros P Q J is_inv JPQ s Js ev. 
 apply (eventually_trans P Q J is_inv); try assumption. 
 intros; constructor 1. apply JPQ; assumption. 
@@ -546,7 +546,7 @@ Lemma eventually_monotonic_simple :
   forall (P Q: infseq T -> Prop), 
   (forall s, P s -> Q s) -> 
   forall s, eventually P s -> eventually Q s.
-Proof.
+Proof using.
 intros P Q PQ s.
 apply (eventually_monotonic P Q True_tl); auto.
 Qed.
@@ -555,7 +555,7 @@ Lemma inf_often_monotonic :
   forall (P Q : infseq T -> Prop),
   (forall s, P s -> Q s) ->
   forall s, inf_often P s -> inf_often Q s.
-Proof.
+Proof using.
 intros P Q impl.
 apply always_monotonic.
 apply eventually_monotonic_simple.
@@ -566,7 +566,7 @@ Lemma continuously_monotonic :
   forall (P Q : infseq T -> Prop),
   (forall s, P s -> Q s) ->
   forall s, continuously P s -> continuously Q s.
-Proof.
+Proof using.
 intros P Q impl.
 apply eventually_monotonic_simple.
 apply always_monotonic.
@@ -578,7 +578,7 @@ Qed.
 Lemma not_eventually_always_not :
   forall (P : infseq T -> Prop) (s : infseq T),
   ~ eventually P s <-> always (~_ P) s.
-Proof.
+Proof using.
 intros P.
 split; genclear s.
 - cofix c.
@@ -609,7 +609,7 @@ Qed.
 Lemma eventually_not_always :
   forall (P : infseq T -> Prop) (s : infseq T),
     eventually (~_ P) s -> ~ always P s.
-Proof.
+Proof using.
 intros P s eP alP.
 induction eP.
 - destruct s as [x s].
@@ -626,7 +626,7 @@ Qed.
 Lemma weak_until_always_not_always :
   forall (J P : infseq T -> Prop) (s : infseq T),
   weak_until J P s -> always (~_ P) s -> always J s.
-Proof.
+Proof using.
 intros J P.
 cofix c.
 intros s unJP alP.
@@ -650,7 +650,7 @@ Qed.
 Lemma always_not_eventually_not :
   forall (P : infseq T -> Prop) (s : infseq T),
     always P s -> ~ eventually (~_ P) s.
-Proof.
+Proof using.
 intros P s alP evP.
 induction evP.
 - unfold not_tl in H.
@@ -666,7 +666,7 @@ Qed.
 Lemma continuously_not_inf_often :
   forall (P : infseq T -> Prop) (s : infseq T),
   continuously (~_ P) s -> ~ inf_often P s.
-Proof.
+Proof using.
 intros P s cnyP.
 induction cnyP.
 - destruct s as [e s].
@@ -690,7 +690,7 @@ Qed.
 Lemma inf_often_not_continuously :
   forall (P : infseq T -> Prop) (s : infseq T),
   inf_often (~_ P) s -> ~ continuously P s.
-Proof.
+Proof using.
 intros P s ioP cnyP.
 induction cnyP.
 - destruct s as [x s].
@@ -712,7 +712,7 @@ Qed.
 Lemma release_not_until : 
   forall (J P : infseq T -> Prop) (s : infseq T),
   release J P s -> ~ until (~_ J) (~_ P) s.
-Proof.
+Proof using.
 intros J P s rl un.
 induction un as [s Ps |x s Js IHun IH].
 - destruct s as [x s].
@@ -730,7 +730,7 @@ Qed.
 Lemma until_not_release :
   forall (J P : infseq T -> Prop) (s : infseq T),
   until J P s -> ~ release (~_ J) (~_ P) s.
-Proof.
+Proof using.
 intros J P s un rl.
 induction un.
 - destruct s as [x s].
@@ -751,7 +751,7 @@ Qed.
 Lemma weak_until_not_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
     weak_until (J /\_ ~_ P) (~_ J /\_ ~_ P) s -> ~ until J P s.
-Proof.
+Proof using.
 intros J P s wu un.
 induction un.
 - destruct s as [x s].
@@ -777,7 +777,7 @@ Qed.
 Lemma until_not_weak_until :
   forall (J P : infseq T -> Prop) (s : infseq T),
     until (J /\_ ~_ P) (~_ J /\_ ~_ P) s -> ~ weak_until J P s.
-Proof.
+Proof using.
 intros J P s un wun.
 induction un as [s JPs | x s JPs IHun IH]; unfold not_tl, and_tl in JPs; destruct JPs as [Js Ps].
 - destruct s as [x s].
@@ -801,35 +801,35 @@ Qed.
 Lemma and_tl_comm : 
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (P /\_ Q) s <-> (Q /\_ P) s.
-Proof.
+Proof using.
 intros; split; unfold and_tl; apply and_comm.
 Qed.
 
 Lemma and_tl_assoc : 
   forall (P Q R : infseq T -> Prop) (s : infseq T),
   ((P /\_ Q) /\_ R) s <-> (P /\_ Q /\_ R) s.
-Proof.
+Proof using.
 intros; split; unfold and_tl; apply and_assoc.
 Qed.
 
 Lemma or_tl_comm :
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (P \/_ Q) s <-> (Q \/_ P) s.
-Proof.
+Proof using.
 intros; split; unfold or_tl; apply or_comm.
 Qed.
 
 Lemma or_tl_assoc : 
   forall (P Q R : infseq T -> Prop) (s : infseq T),
   ((P \/_ Q) \/_ R) s <-> (P \/_ Q \/_ R) s.
-Proof.
+Proof using.
 intros; split; unfold or_tl; apply or_assoc.
 Qed.
 
 Lemma not_tl_or_tl : 
   forall (P Q : infseq T -> Prop) (s : infseq T),
   (~_ (P \/_ Q)) s <-> ((~_ P) /\_ (~_ Q)) s.
-Proof.
+Proof using.
 intros P Q s; unfold not_tl, and_tl, or_tl; split; [ intros PQs | intros [Ps Qs] PQs].
 - split; intro Ps; contradict PQs; [left|right]; assumption.
 - case PQs; assumption.
@@ -838,7 +838,7 @@ Qed.
 Lemma not_tl_or_tl_and_tl : 
   forall (P Q : infseq T -> Prop) (s : infseq T),
     ((~_ P) \/_ (~_ Q)) s -> (~_ (P /\_ Q)) s.
-Proof.
+Proof using.
 intros P Q s; unfold not_tl, and_tl, or_tl; intros PQs [Ps Qs]; case PQs; intros nPQs; contradict nPQs; assumption.
 Qed.
 
