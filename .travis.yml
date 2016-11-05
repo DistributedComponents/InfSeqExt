@@ -5,3 +5,5 @@ env:
     - DOWNSTREAM=none
     - DOWNSTREAM=verdi
 sudo: false
+notifications:
+  email: false
