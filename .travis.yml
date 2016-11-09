@@ -1,9 +1,15 @@
 language: c
 script: bash -ex .travis-ci.sh
+addons:
+  apt:
+    sources:
+      - avsm
+    packages:
+      - ocaml
+      - opam
 env:
-  matrix:
-    - DOWNSTREAM=none
-    - DOWNSTREAM=verdi
+  - DOWNSTREAM=none
+  - DOWNSTREAM=verdi
 sudo: false
 notifications:
   email: false
