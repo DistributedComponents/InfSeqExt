@@ -1,15 +1,14 @@
-set -e
-
-pushd ..
-wget 'http://homes.cs.washington.edu/~jrw12/coq-8.5-build-local.tgz'
-tar xf coq-8.5-build-local.tgz
-export PATH=$PWD/coq-8.5/bin:$PATH
-popd
+opam init --yes --no-setup
+eval $(opam config env)
+opam install coq --yes
 
 ./build.sh
 
 case $DOWNSTREAM in
 verdi)
+  opam repo add coq-released https://coq.inria.fr/opam/released
+  opam install coq-mathcomp-ssreflect --yes
+
   pushd ..
     git clone 'http://github.com/uwplse/StructTact'
     pushd StructTact
@@ -23,4 +22,3 @@ verdi)
   popd
   ;;
 esac
-
