@@ -16,6 +16,6 @@ Makefile.coq: _CoqProject
 clean:
 	if [ -f Makefile.coq ]; then \
 	  $(MAKE) -f Makefile.coq cleanall; fi
-	rm Makefile.coq
+	rm -f Makefile.coq
 
 .PHONY: default clean quick
