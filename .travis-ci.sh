@@ -1,12 +1,12 @@
 opam init --yes --no-setup
 eval $(opam config env)
+opam repo add coq-released https://coq.inria.fr/opam/released
 opam install coq --yes --verbose
 
 ./build.sh
 
 case $DOWNSTREAM in
 verdi)
-  opam repo add coq-released https://coq.inria.fr/opam/released
   opam install coq-mathcomp-ssreflect --yes --verbose
 
   pushd ..
