@@ -10,12 +10,12 @@ verdi)
   opam install coq-mathcomp-ssreflect.$SSREFLECT_VERSION --yes --verbose
 
   pushd ..
-    git clone 'http://github.com/uwplse/StructTact'
+    git clone 'https://github.com/uwplse/StructTact.git'
     pushd StructTact
       ./build.sh
     popd
 
-    git clone 'http://github.com/uwplse/verdi'
+    git clone 'https://github.com/uwplse/verdi.git'
     pushd verdi
       ./build.sh
     popd
