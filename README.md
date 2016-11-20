@@ -1,7 +1,7 @@
 InfSeqExt
 =========
 
-[![Build Status](https://api.travis-ci.org/palmskog/InfSeqExt.svg?branch=master)](https://travis-ci.org/palmskog/InfSeqExt)
+[![Build Status](https://api.travis-ci.org/DistributedComponents/InfSeqExt.svg?branch=master)](https://travis-ci.org/DistributedComponents/InfSeqExt)
 
 `InfSeqExt` is collection of Coq libraries for reasoning inductively and coinductively on infinite sequences, using modal operators similar to those in linear temporal logic (LTL).
 
