@@ -6,7 +6,7 @@ opam install coq.$COQ_VERSION --yes --verbose
 ./build.sh
 
 case $DOWNSTREAM in
-verdi)
+verdi-aggregation)
   opam install coq-mathcomp-ssreflect.$SSREFLECT_VERSION --yes --verbose
 
   pushd ..
@@ -17,6 +17,16 @@ verdi)
 
     git clone 'https://github.com/uwplse/verdi.git'
     pushd verdi
+      ./build.sh
+    popd
+
+    git clone -b v8.5 'https://github.com/coq-contribs/aac-tactics.git' AAC_tactics
+    pushd AAC_tactics
+      make
+    popd
+
+    git clone 'https://github.com/DistributedComponents/verdi-aggregation.git'
+    pushd verdi-aggregation
       ./build.sh
     popd
   popd
