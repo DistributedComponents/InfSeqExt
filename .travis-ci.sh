@@ -7,7 +7,7 @@ opam install coq.$COQ_VERSION --yes --verbose
 
 case $DOWNSTREAM in
 verdi-aggregation)
-  opam install coq-mathcomp-ssreflect.$SSREFLECT_VERSION --yes --verbose
+  opam install coq.$COQ_VERSION coq-mathcomp-ssreflect.$MATHCOMP_VERSION coq-mathcomp-fingroup.$MATHCOMP_VERSION coq-mathcomp-algebra.$MATHCOMP_VERSION --yes --verbose
 
   pushd ..
     git clone 'https://github.com/uwplse/StructTact.git'
