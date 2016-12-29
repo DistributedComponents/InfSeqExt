@@ -12,6 +12,7 @@ env:
   global:
     - COQ_VERSION=8.5.3
     - MATHCOMP_VERSION=1.6
+    - AAC_TACTICS_VERSION=8.5.1
   matrix:
     - DOWNSTREAM=none
     - DOWNSTREAM=verdi-aggregation

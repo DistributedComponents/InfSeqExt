@@ -7,7 +7,7 @@ opam install coq.$COQ_VERSION --yes --verbose
 
 case $DOWNSTREAM in
 verdi-aggregation)
-  opam install coq.$COQ_VERSION coq-mathcomp-ssreflect.$MATHCOMP_VERSION coq-mathcomp-fingroup.$MATHCOMP_VERSION coq-mathcomp-algebra.$MATHCOMP_VERSION --yes --verbose
+  opam install coq.$COQ_VERSION coq-mathcomp-ssreflect.$MATHCOMP_VERSION coq-mathcomp-fingroup.$MATHCOMP_VERSION coq-mathcomp-algebra.$MATHCOMP_VERSION coq-aac-tactics.$AAC_TACTICS_VERSION --yes --verbose
 
   pushd ..
     git clone 'https://github.com/uwplse/StructTact.git'
@@ -18,11 +18,6 @@ verdi-aggregation)
     git clone 'https://github.com/uwplse/verdi.git'
     pushd verdi
       ./build.sh
-    popd
-
-    git clone -b v8.5 'https://github.com/coq-contribs/aac-tactics.git' AAC_tactics
-    pushd AAC_tactics
-      make
     popd
 
     git clone 'https://github.com/DistributedComponents/verdi-aggregation.git'
