@@ -21,4 +21,7 @@ clean:
 	  $(MAKE) -f Makefile.coq cleanall; fi
 	rm -f Makefile.coq
 
-.PHONY: default clean quick
+distclean: clean
+	rm -f _CoqProject
+
+.PHONY: default clean quick distclean
