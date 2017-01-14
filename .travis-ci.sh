@@ -11,15 +11,12 @@ opam pin add coq $COQ_VERSION --yes --verbose
 ./build.sh
 
 case $DOWNSTREAM in
-verdi-aggregation)
-  opam install coq-mathcomp-ssreflect.$MATHCOMP_VERSION \
-    coq-mathcomp-fingroup.$MATHCOMP_VERSION coq-mathcomp-algebra.$MATHCOMP_VERSION \
-    coq-aac-tactics.$AAC_TACTICS_VERSION InfSeqExt StructTact verdi --yes --verbose
-
+verdi)
+  opam install coq-mathcomp-ssreflect.$SSREFLECT_VERSION StructTact --yes --verbose
   pushd ..
-    git clone 'https://github.com/DistributedComponents/verdi-aggregation.git'
-    pushd verdi-aggregation
-      ./build.sh
+    git clone 'https://github.com/uwplse/verdi.git'
+    pushd verdi
+      InfSeqExt_PATH=../InfSeqExt ./build.sh
     popd
   popd
   ;;
