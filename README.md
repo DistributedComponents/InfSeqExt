@@ -3,7 +3,7 @@ InfSeqExt
 
 [![Build Status](https://api.travis-ci.org/DistributedComponents/InfSeqExt.svg?branch=master)](https://travis-ci.org/DistributedComponents/InfSeqExt)
 
-InfSeqExt is collection of Coq libraries for reasoning inductively and coinductively on infinite sequences, using modal operators similar to those in linear temporal logic (LTL).
+InfSeqExt is a Coq library for reasoning inductively and coinductively on infinite sequences, using modal operators similar to those in linear temporal logic (LTL).
 
 InfSeqExt is based on an [earlier library](http://ieeexplore.ieee.org/xpls/abs_all.jsp?arnumber=5198503) by Deng and Monin. It is intended as a more comprehensive alternative to [`Streams`](https://coq.inria.fr/library/Coq.Lists.Streams.html) in the Coq standard library. In particular, InfSeqExt provides machinery commonly used when reasoning about temporal properties of system execution traces, and follows the modal operator [name conventions](http://spinroot.com/spin/Man/ltl.html) used in the Spin model checker. 
 
