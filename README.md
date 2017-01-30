@@ -10,15 +10,15 @@ InfSeqExt is based on an [earlier library](http://ieeexplore.ieee.org/xpls/abs_a
 Requirements
 ------------
 
-- [Coq](https://coq.inria.fr/download) (8.5 or 8.6)
+- [`Coq 8.5`](https://coq.inria.fr/coq-85) or [`Coq 8.6`](https://coq.inria.fr/coq-86)
 
 Building
 --------
 
-The easiest way to install InfSeqExt is via [OPAM](https://coq.inria.fr/opam/www/using.html):
+The easiest way to install InfSeqExt is via [OPAM](http://opam.ocaml.org/doc/Install.html):
 
 ```
-opam repo add distributedcomponents http://opam.distributedcomponents.net
+opam repo add distributedcomponents-dev http://opam-dev.distributedcomponents.net
 opam install InfSeqExt
 ```
 
@@ -27,7 +27,7 @@ To build InfSeqExt manually, first run `./configure` in the root directory, and 
 Files
 -----
 
-- `infseq.v`: contains the main definitions and results.
+- `infseq.v`: main definitions and results.
     * coinductive definition of infinite sequences
     * definitions and notations for modal operators and connectors
         - basic modal operators: `now`, `next`, `consecutive`, `always1`, `always`, `weak_until`, `until`, `release`, `eventually`
@@ -35,14 +35,10 @@ Files
         - modal connectors: `impl_tl` (`->_`), `and_tl` (`/\_`), `or_tl` (`\/_`), `not_tl` (`~_`)
     * lemmas about modal operators and connectors
     * tactics
-
-- `map.v`: contains corecursive definitions of the `map` and `zip` functions for use on infinite sequences, and related lemmas.
-
-- `exteq.v`: contains a coinductive definition of extensional equality (`exteq`) for infinite sequences, and related lemmas.
-
-- `subseq.v`: contains coinductive definitions of infinite subsequences and related lemmas.
-
-- `classical.v`: contains lemmas about modal operators and connectors when assuming classical logic (excluded middle).
+- `map.v`: corecursive definitions of the `map` and `zip` functions for use on infinite sequences, and related lemmas.
+- `exteq.v`: coinductive definition of extensional equality (`exteq`) for infinite sequences, and related lemmas.
+- `subseq.v`: coinductive definitions of infinite subsequences and related lemmas.
+- `classical.v`: lemmas about modal operators and connectors when assuming classical logic (excluded middle).
 
 Related Libraries
 -----------------
