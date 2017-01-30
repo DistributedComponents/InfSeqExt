@@ -213,16 +213,22 @@ Proof.
 Qed.
 
 Lemma always_always1 :
-   forall P (s: infseq T), always (now P) s <-> always1 P s.
+   forall P (s: infseq T), always (now P) s -> always1 P s.
 Proof using.
-intros P s. split; genclear s.
-- cofix alwn.
-  intros s a; case a; clear a s. intros (x, s); simpl. constructor.
-  * assumption.
-  * apply alwn; assumption.
-- cofix alwn. destruct 1. constructor; simpl.
-  * assumption.
-  * apply alwn; assumption.
+intros P.
+cofix alwn.
+intros s a; case a; clear a s. intros (x, s); simpl. constructor.
+- assumption.
+- apply alwn; assumption.
+Qed.
+
+Lemma always1_always :
+   forall P (s: infseq T), always1 P s -> always (now P) s.
+Proof using.
+intros P.
+cofix alwn. destruct 1. constructor; simpl.
+- assumption.
+- apply alwn; assumption.
 Qed.
 
 Lemma always_weak_until :
@@ -639,33 +645,39 @@ Qed.
 
 Lemma not_eventually_always_not :
   forall (P : infseq T -> Prop) (s : infseq T),
-  ~ eventually P s <-> always (~_ P) s.
+  ~ eventually P s -> always (~_ P) s.
 Proof using.
 intros P.
-split; genclear s.
-- cofix c.
-  intros s evP.
-  destruct s as [e s].
-  apply Always.
-  * unfold not_tl.
-    intro Pn.
-    case evP.
-    apply E0.
-    assumption.
-  * apply c.
-    intro evPn.
-    contradict evP.
-    apply E_next.
-    assumption.
-- intros s alP evP.
-  induction evP.
-  * destruct s as [e s].
-    apply always_Cons in alP.
-    destruct alP as [nP alP].
-    unfold not_tl in nP.
-    contradict nP; assumption.
-  * apply always_invar in alP.
-    contradict IHevP; assumption.
+cofix c.
+intros s evP.
+destruct s as [e s].
+apply Always.
+* unfold not_tl.
+  intro Pn.
+  case evP.
+  apply E0.
+  assumption.
+* apply c.
+  intro evPn.
+  contradict evP.
+  apply E_next.
+  assumption.
+Qed.
+
+Lemma always_not_eventually :
+  forall (P : infseq T -> Prop) (s : infseq T),
+  always (~_ P) s -> ~ eventually P s.
+Proof using.
+intros P.
+intros s alP evP.
+induction evP.
+* destruct s as [e s].
+  apply always_Cons in alP.
+  destruct alP as [nP alP].
+  unfold not_tl in nP.
+  contradict nP; assumption.
+* apply always_invar in alP.
+  contradict IHevP; assumption.
 Qed.
 
 Lemma eventually_not_always :
@@ -914,7 +926,8 @@ Arguments always_tl [T s P] _.
 Arguments always_not_false [T s].
 Arguments always_true [T s].
 Arguments always_and_tl [T P Q s] _ _.
-Arguments always_always1 [T P s].
+Arguments always_always1 [T P s] _.
+Arguments always1_always [T P s] _.
 Arguments always_weak_until [T J P s] _.
 Arguments always_release [T J P s] _.
 Arguments always_inf_often [T P s] _.
@@ -950,7 +963,8 @@ Arguments eventually_monotonic_simple [T P Q] _ [s] _.
 Arguments inf_often_monotonic [T P Q] _ [s] _.
 Arguments continuously_monotonic [T P Q] _ [s] _.
 
-Arguments not_eventually_always_not [T P s].
+Arguments not_eventually_always_not [T P s] _.
+Arguments always_not_eventually [T P s] _ _.
 Arguments eventually_not_always [T P s] _ _.
 Arguments weak_until_always_not_always [T J P s] _ _.
 Arguments always_not_eventually_not [T P s] _ _.
