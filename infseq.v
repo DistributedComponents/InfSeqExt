@@ -199,6 +199,19 @@ apply Always.
 - apply c; assumption.
 Qed.
 
+Lemma always_always :
+  forall (P : infseq T -> Prop) s,
+    always P s ->
+    always (always P) s.
+Proof.
+  intro P.
+  cofix c.
+  constructor.
+  - auto.
+  - do 2 destruct s.
+    constructor; eauto using always_invar.
+Qed.
+
 Lemma always_always1 :
    forall P (s: infseq T), always (now P) s <-> always1 P s.
 Proof using.
@@ -560,6 +573,55 @@ intros P Q impl.
 apply always_monotonic.
 apply eventually_monotonic_simple.
 assumption.
+Qed.
+
+Lemma cumul_eventually_always :
+  forall (P Q : infseq T -> Prop) s,
+    always P s ->
+    eventually Q s ->
+    eventually (P /\_ Q) s.
+Proof.
+  intros until 1.
+  intro H_eventually.
+  induction H_eventually.
+  - apply E0.
+    destruct s.
+    firstorder using always_Cons.
+  - eauto using E_next, always_invar.
+Qed.
+
+Lemma cumul_inf_often_always :
+  forall (P Q : infseq T -> Prop) s,
+    always P s ->
+    inf_often Q s ->
+    inf_often (P /\_ Q) s.
+Proof.
+  intros.
+  eapply always_monotonic
+  with (P := always P /\_ eventually Q) (Q := eventually (P /\_ Q)).
+  - intros.
+    unfold and_tl in * |-.
+    firstorder using cumul_eventually_always.
+  - eapply always_and_tl; eauto using always_always.
+Qed.
+
+(** This theorem is an analog of eventually_monotonic. *)
+Lemma inf_often_monotonic_invar :
+  forall (invariant P Q : infseq T -> Prop),
+    (forall s,
+        invariant s ->
+        P s ->
+        Q s) ->
+    forall ex,
+      always invariant ex ->
+      inf_often P ex ->
+      inf_often Q ex.
+Proof.
+  intros.
+  eapply inf_often_monotonic with (P:=invariant /\_ P).
+  - intros.
+    unfold and_tl in *; firstorder.
+  - eapply cumul_inf_often_always; eauto.
 Qed.
 
 Lemma continuously_monotonic :
