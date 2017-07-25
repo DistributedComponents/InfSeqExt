@@ -131,7 +131,7 @@ Lemma now_hd :
   forall (P : T -> Prop) ex,
     now P ex ->
     P (hd ex).
-Proof.
+Proof using.
   now destruct ex.
 Qed.
 
@@ -166,7 +166,7 @@ Lemma always_now' :
   forall (P : infseq T -> Prop) ex,
     always P ex ->
     P ex.
-Proof.
+Proof using.
   destruct ex.
   apply always_now.
 Qed.
@@ -221,7 +221,7 @@ Lemma always_always :
   forall (P : infseq T -> Prop) s,
     always P s ->
     always (always P) s.
-Proof.
+Proof using.
   intro P.
   cofix c.
   constructor.
@@ -412,7 +412,7 @@ Lemma eventually_or_tl_intror :
   forall (P Q : infseq T -> Prop) s,
     eventually Q s ->
     eventually (P \/_ Q) s.
-Proof.
+Proof using.
   induction 1; firstorder using E0, E_next.
 Qed.
 
@@ -420,7 +420,7 @@ Lemma eventually_or_tl_introl :
   forall (P Q : infseq T -> Prop) s,
     eventually P s ->
     eventually (P \/_ Q) s.
-Proof.
+Proof using.
   induction 1; firstorder using E0, E_next.
 Qed.
 
@@ -428,7 +428,7 @@ Lemma eventually_or_tl_or :
   forall (P Q : infseq T -> Prop) s,
     eventually (P \/_ Q) s ->
     eventually P s \/ eventually Q s.
-Proof.
+Proof using.
   induction 1; firstorder using E0, E_next.
 Qed.
 
@@ -628,7 +628,7 @@ Lemma cumul_eventually_always :
     always P s ->
     eventually Q s ->
     eventually (P /\_ Q) s.
-Proof.
+Proof using.
   intros until 1.
   intro H_eventually.
   induction H_eventually.
@@ -643,7 +643,7 @@ Lemma cumul_inf_often_always :
     always P s ->
     inf_often Q s ->
     inf_often (P /\_ Q) s.
-Proof.
+Proof using.
   intros.
   eapply always_monotonic
   with (P := always P /\_ eventually Q) (Q := eventually (P /\_ Q)).
@@ -664,7 +664,7 @@ Lemma inf_often_monotonic_invar :
       always invariant ex ->
       inf_often P ex ->
       inf_often Q ex.
-Proof.
+Proof using.
   intros.
   eapply inf_often_monotonic with (P:=invariant /\_ P).
   - intros.
@@ -768,7 +768,7 @@ Lemma weak_until_latch_eventually :
     weak_until (P /\_ ~_ Q) (P /\_ Q) ex ->
     eventually Q ex ->
     eventually (P /\_ Q) ex.
-Proof.
+Proof using.
   intros P Q ex H_w.
   induction 1;
     inversion H_w; firstorder using E0, E_next.
