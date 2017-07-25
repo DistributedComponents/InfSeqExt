@@ -126,6 +126,15 @@ Section sec_modal_op_lemmas.
 
 Variable T : Type.
 
+(* now facts *)
+Lemma now_hd :
+  forall (P : T -> Prop) ex,
+    now P ex ->
+    P (hd ex).
+Proof.
+  now destruct ex.
+Qed.
+
 (* always facts *)
 
 Lemma always_inv :
@@ -151,6 +160,15 @@ Lemma always_now :
   forall (x: T) (s: infseq T) P, always P (Cons x s) -> P (Cons x s).
 Proof using.
 intros x s P al. case (always_Cons x s P al); trivial.
+Qed.
+
+Lemma always_now' :
+  forall (P : infseq T -> Prop) ex,
+    always P ex ->
+    P ex.
+Proof.
+  destruct ex.
+  apply always_now.
 Qed.
 
 Lemma always_invar :
@@ -388,6 +406,30 @@ induction ev as [s Ps | x s ev induc_hyp].
     + clearall. constructor 1; assumption.
     + intros s2 Js2 _ e J_weak_until_Q2. rewrite e in induc_hyp; clear e.
       apply induc_hyp; assumption.
+Qed.
+
+Lemma eventually_or_tl_intror :
+  forall (P Q : infseq T -> Prop) s,
+    eventually Q s ->
+    eventually (P \/_ Q) s.
+Proof.
+  induction 1; firstorder using E0, E_next.
+Qed.
+
+Lemma eventually_or_tl_introl :
+  forall (P Q : infseq T -> Prop) s,
+    eventually P s ->
+    eventually (P \/_ Q) s.
+Proof.
+  induction 1; firstorder using E0, E_next.
+Qed.
+
+Lemma eventually_or_tl_or :
+  forall (P Q : infseq T -> Prop) s,
+    eventually (P \/_ Q) s ->
+    eventually P s \/ eventually Q s.
+Proof.
+  induction 1; firstorder using E0, E_next.
 Qed.
 
 (* until facts *)
@@ -719,6 +761,17 @@ case unJP.
   apply c; trivial.
   apply always_invar in alP.
   assumption.
+Qed.
+
+Lemma weak_until_latch_eventually :
+  forall (P Q : infseq T -> Prop) ex,
+    weak_until (P /\_ ~_ Q) (P /\_ Q) ex ->
+    eventually Q ex ->
+    eventually (P /\_ Q) ex.
+Proof.
+  intros P Q ex H_w.
+  induction 1;
+    inversion H_w; firstorder using E0, E_next.
 Qed.
 
 Lemma always_not_eventually_not :
