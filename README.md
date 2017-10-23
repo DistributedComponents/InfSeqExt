@@ -10,7 +10,7 @@ InfSeqExt is based on an [earlier library](http://ieeexplore.ieee.org/xpls/abs_a
 Requirements
 ------------
 
-- [`Coq 8.5`](https://coq.inria.fr/coq-85) or [`Coq 8.6`](https://coq.inria.fr/coq-86)
+- [`Coq`](https://coq.inria.fr) ([`8.5`](https://coq.inria.fr/coq-85), [`8.6`](https://coq.inria.fr/coq-86), or [`8.7`](https://coq.inria.fr/coq-87))
 
 Building
 --------
