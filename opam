@@ -13,7 +13,7 @@ build: [
 ]
 install: [ make "install" ]
 remove: [ "sh" "-c" "rm -rf '%{lib}%/coq/user-contrib/InfSeqExt'" ]
-depends: [ "coq" {>= "8.5" & < "8.9~"} ]
+depends: [ "coq" {>= "8.5" & < "8.10~"} ]
 
 tags: [
   "category:Mathematics/Logic/Modal logic"
