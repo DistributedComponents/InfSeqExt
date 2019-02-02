@@ -95,7 +95,7 @@ Definition False_tl : infseq T -> Prop := fun _ => False.
 
 End sec_modal_op_defn.
 
-Hint Unfold True_tl False_tl.
+Hint Unfold True_tl False_tl : core.
 
 Arguments now [T] _ _.
 Arguments next [T] _ _.
