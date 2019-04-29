@@ -10,16 +10,15 @@ InfSeqExt is based on an [earlier library](http://ieeexplore.ieee.org/xpls/abs_a
 Requirements
 ------------
 
-- [`Coq`](https://coq.inria.fr) (8.5, 8.6, 8.7, 8.8, or 8.9)
+- [`Coq`](https://coq.inria.fr) (8.5 or later)
 
 Building
 --------
 
 The easiest way to install InfSeqExt is via [OPAM](http://opam.ocaml.org/doc/Install.html):
-
 ```
-opam repo add distributedcomponents-dev http://opam-dev.distributedcomponents.net
-opam install InfSeqExt
+opam repo add coq-extra-dev https://coq.inria.fr/opam/extra-dev
+opam install coq-inf-seq-ext
 ```
 
 To build InfSeqExt manually, first run `./configure` in the root directory, and then run `make`. The default namespace is `InfSeqExt`, so Coq files that rely on the libraries will typically include `Require Import InfSeqExt.infseq.`
