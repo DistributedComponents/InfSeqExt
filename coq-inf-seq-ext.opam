@@ -16,10 +16,10 @@ build: [
   [ "./configure" ]
   [ make "-j%{jobs}%" ]
 ]
-install: [ make "install" ]
+install: [make "install"]
 depends: [
   "ocaml"
-  "coq" {(>= "8.5" & < "8.10~") | (= "dev")}
+  "coq" {(>= "8.5" & < "8.11~") | (= "dev")}
 ]
 
 tags: [
