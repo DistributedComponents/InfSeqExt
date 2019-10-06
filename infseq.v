@@ -976,8 +976,8 @@ Arguments always_Cons [T x s P] _.
 Arguments always_now [T x s P] _.
 Arguments always_invar [T x s P] _.
 Arguments always_tl [T s P] _.
-Arguments always_not_false [T s].
-Arguments always_true [T s].
+Arguments always_not_false {T s}.
+Arguments always_true {T s}.
 Arguments always_and_tl [T P Q s] _ _.
 Arguments always_always1 [T P s] _.
 Arguments always1_always [T P s] _.
@@ -1028,11 +1028,11 @@ Arguments until_not_release [T J P s] _ _.
 Arguments weak_until_not_until [T J P s] _ _.
 Arguments until_not_weak_until [T J P s] _ _.
 
-Arguments and_tl_comm [T P Q s].
-Arguments and_tl_assoc [T P Q R s].
-Arguments or_tl_comm [T P Q s].
-Arguments or_tl_assoc [T P Q R s].
-Arguments not_tl_or_tl [T P Q s].
+Arguments and_tl_comm {T P Q s}.
+Arguments and_tl_assoc {T P Q R s}.
+Arguments or_tl_comm {T P Q s}.
+Arguments or_tl_assoc {T P Q R s}.
+Arguments not_tl_or_tl {T P Q s}.
 Arguments not_tl_or_tl_and_tl [T P Q s] _ _.
 
 Ltac monotony := 
