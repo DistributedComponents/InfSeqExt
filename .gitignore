@@ -13,3 +13,4 @@ Makefile.coq.conf
 *.vio
 _CoqProject
 .coqdeps.d
+_build
