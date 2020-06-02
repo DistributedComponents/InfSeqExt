@@ -1,0 +1,4 @@
+(coq.theory
+ (name InfSeqExt)
+ (package coq-inf-seq-ext)
+ (synopsis "Coq library for reasoning inductively and coinductively on infinite sequences"))

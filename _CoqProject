@@ -1,0 +1,7 @@
+-Q theories InfSeqExt
+
+theories/subseq.v
+theories/exteq.v
+theories/infseq.v
+theories/classical.v
+theories/map.v
