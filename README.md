@@ -1,9 +1,9 @@
 # InfSeqExt
 
-[![Travis][travis-shield]][travis-link]
+[![CI][action-shield]][action-link]
 
-[travis-shield]: https://travis-ci.org/DistributedComponents/InfSeqExt.svg?branch=master
-[travis-link]: https://travis-ci.org/DistributedComponents/InfSeqExt/builds
+[action-shield]: https://github.com/DistributedComponents/InfSeqExt/workflows/CI/badge.svg?branch=master
+[action-link]: https://github.com/DistributedComponents/InfSeqExt/actions?query=workflow%3ACI
 
 
 
@@ -25,23 +25,20 @@ using modal operators similar to those in linear temporal logic (LTL).
 
 ## Building and installation instructions
 
-The easiest way to install the latest released version of InfSeqExt
-is via [OPAM](https://opam.ocaml.org/doc/Install.html):
-
+The easiest way to install InfSeqExt is via
+[OPAM](https://opam.ocaml.org/doc/Install.html):
 ```shell
 opam repo add coq-extra-dev https://coq.inria.fr/opam/extra-dev
 opam install coq-inf-seq-ext
 ```
 
 To instead build and install manually, do:
-
-``` shell
+```shell
 git clone https://github.com/DistributedComponents/InfSeqExt.git
 cd InfSeqExt
 make   # or make -j <number-of-cores-on-your-machine>
 make install
 ```
-
 
 ## Documentation
 
