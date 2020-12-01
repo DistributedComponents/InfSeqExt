@@ -14,8 +14,8 @@ using modal operators similar to those in linear temporal logic (LTL)."""
 
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
-  "dune" {>= "2.4"}
-  "coq" {(>= "8.7" & < "8.13~") | (= "dev")}
+  "dune" {>= "2.5"}
+  "coq" {(>= "8.7" & < "8.14~") | (= "dev")}
 ]
 
 tags: [
